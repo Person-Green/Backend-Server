@@ -1,14 +1,9 @@
 package bssm.plantshuman.peopleandgreen.domain.plantEnvironment;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Entity
 @Getter
@@ -18,22 +13,25 @@ public class PlantEnvironment {
     @Id
     private String typeId;
 
+    @Column(nullable = false)
     private String typeName;
 
+    @Column(nullable = false)
     private String keyCondition;
 
-    @Enumerated(EnumType.STRING)
-    private List<Sunlight> sunlight;
+    @Column(nullable = false)
+    private String sunlight;
 
-    @Enumerated(EnumType.STRING)
-    private List<Ventilation> ventilation;
+    @Column(nullable = false)
+    private String ventilation;
 
-    @Enumerated(EnumType.STRING)
-    private List<Temperature> temperature;
+    @Column(nullable = false)
+    private String temperature;
 
-    @Enumerated(EnumType.STRING)
-    private List<Humidity> humidity;
+    @Column(nullable = false)
+    private String humidity;
 
+    @Column(nullable = false)
     private String description;
 
 }
