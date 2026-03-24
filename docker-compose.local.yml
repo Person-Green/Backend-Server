@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  mysql:
+    container_name: maru.local.db
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "peopleandhuman"
+      MYSQL_USER: "people"
+      MYSQL_PASSWORD: "human"
+    ports:
+      - "3306:3306"
