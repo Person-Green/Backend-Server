@@ -1,0 +1,116 @@
+name: CD
+
+on:
+  push:
+    branches: [ master ]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 이미지 이름 설정
+        id: image
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Docker 메타데이터
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.image.outputs.name }}
+          tags: |
+            type=sha
+            type=raw,value=latest
+
+      - name: GHCR 로그인
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Buildx 설정
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker 빌드 & 푸시
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 배포 파일 전송
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "docker-compose.prod.yml,scripts/deploy.sh"
+          target: ~/app
+          strip_components: 0
+          overwrite: true
+
+      - name: .env 생성 & App 배포
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          envs: IMAGE,CR_TOKEN,CR_USER,DB_ROOT_PASSWORD,DB_DATABASE,DB_USERNAME,DB_PASSWORD
+          script: |
+            cat > ~/app/.env << EOF
+            MYSQL_ROOT_PASSWORD=$DB_ROOT_PASSWORD
+            MYSQL_DATABASE=$DB_DATABASE
+            MYSQL_USER=$DB_USERNAME
+            MYSQL_PASSWORD=$DB_PASSWORD
+            SPRING_PROFILES_ACTIVE=prod
+            SPRING_DATASOURCE_URL=jdbc:mysql://app-db:3306/$DB_DATABASE
+            SPRING_DATASOURCE_USERNAME=$DB_USERNAME
+            SPRING_DATASOURCE_PASSWORD=$DB_PASSWORD
+            SPRING_JPA_HIBERNATE_DDL_AUTO=update
+            EOF
+            chmod 600 ~/app/.env
+            echo "$CR_TOKEN" | docker login ghcr.io -u "$CR_USER" --password-stdin
+            mv ~/app/scripts/deploy.sh ~/app/deploy.sh 2>/dev/null || true
+            chmod +x ~/app/deploy.sh
+            ~/app/deploy.sh "$IMAGE:latest"
+        env:
+          IMAGE: ${{ steps.image.outputs.name }}
+          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CR_USER: ${{ github.actor }}
+          DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
+      - name: sshpass 설치
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      - name: Nginx 포트 전환
+        env:
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+          NGINX_SSH_PASSWORD: ${{ secrets.NGINX_SSH_PASSWORD }}
+          APP_HOST: ${{ secrets.APP_HOST }}
+          NGINX_CONF: ${{ secrets.NGINX_CONF_PATH }}
+        run: |
+          ACTIVE_PORT=$(SSHPASS="$SSH_PASSWORD" sshpass -e ssh -o StrictHostKeyChecking=no \
+            -p ${{ secrets.SSH_PORT }} \
+            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
+            "docker ps --format '{{.Names}}' | grep -q 'app-green' && echo 8091 || echo 8090")
+
+          SSHPASS="$NGINX_SSH_PASSWORD" sshpass -e ssh -o StrictHostKeyChecking=no \
+            -p ${{ secrets.NGINX_SSH_PORT }} \
+            ${{ secrets.NGINX_SSH_USER }}@${{ secrets.NGINX_SSH_HOST }} \
+            "sudo sed -i 's|proxy_pass http://${APP_HOST}:[0-9]*;|proxy_pass http://${APP_HOST}:${ACTIVE_PORT};|' ${NGINX_CONF} && sudo nginx -s reload"
+
+          echo "Nginx 전환 완료: ${APP_HOST}:${ACTIVE_PORT}"
