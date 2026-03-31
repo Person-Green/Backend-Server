@@ -47,7 +47,9 @@ public class PlantRecommendationEngine {
         return catalog.stream()
                 .filter(plant -> passesHardFilter(userProfile, plant))
                 .map(plant -> toRecommendation(plant, userProfile, representativeEnvironment, secondaryTags))
-                .sorted(Comparator.comparingInt(PlantRecommendation::score).reversed())
+                .sorted(Comparator.comparingInt(PlantRecommendation::score)
+                        .reversed()
+                        .thenComparing(PlantRecommendation::plantId))
                 .toList();
     }
 

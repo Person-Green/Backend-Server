@@ -169,6 +169,31 @@ class PlantRecommendationEngineTest {
         assertEquals(firstScore, secondScore);
     }
 
+    @Test
+    void ordersEqualScoresByPlantIdForStableResults() {
+        UserProfile userProfile = new UserProfile(
+                new UserEnvironment(
+                        SunlightLevel.MEDIUM,
+                        VentilationLevel.NORMAL,
+                        TemperatureBand.NORMAL,
+                        HumidityBand.NORMAL
+                ),
+                CareLevel.MEDIUM,
+                ExperienceLevel.INTERMEDIATE,
+                false,
+                PlacementType.LIVING_ROOM
+        );
+
+        List<PlantRecommendation> recommendations = engine.recommend(
+                userProfile,
+                List.of(stablePlant("PLT-B"), stablePlant("PLT-A"))
+        );
+
+        assertEquals(List.of("PLT-A", "PLT-B"), recommendations.stream()
+                .map(PlantRecommendation::plantId)
+                .toList());
+    }
+
     private PlantCatalogItem highLightPlant() {
         return new PlantCatalogItem(
                 "PLT-HIGH",
@@ -381,6 +406,36 @@ class PlantRecommendationEngineTest {
                         60,
                         7,
                         10,
+                        Set.of(PlacementType.LIVING_ROOM)
+                ),
+                List.of(new EnvironmentFit(EnvironmentType.ENV_03_BRIGHT_INDIRECT, FitLevel.OPTIMAL))
+        );
+    }
+
+    private PlantCatalogItem stablePlant(String plantId) {
+        return new PlantCatalogItem(
+                plantId,
+                plantId,
+                plantId,
+                DifficultyLevel.EASY,
+                PetSafetyLevel.SAFE,
+                AirPurificationLevel.MEDIUM,
+                SizeCategory.MEDIUM,
+                "1주 1회",
+                "18~28°C",
+                "40~60%",
+                "간접광",
+                "동점 정렬 테스트용 식물",
+                "거실",
+                new PlantCondition(
+                        SunlightLevel.MEDIUM,
+                        VentilationLevel.NORMAL,
+                        18,
+                        28,
+                        40,
+                        60,
+                        7,
+                        14,
                         Set.of(PlacementType.LIVING_ROOM)
                 ),
                 List.of(new EnvironmentFit(EnvironmentType.ENV_03_BRIGHT_INDIRECT, FitLevel.OPTIMAL))
