@@ -1,10 +1,14 @@
 package bssm.plantshuman.peopleandgreen.domain.plant;
 
-import bssm.plantshuman.peopleandgreen.domain.plantEnvironment.PlantEnvironment;
+import bssm.plantshuman.peopleandgreen.domain.diagnosis.PlantEnvironment;
+import bssm.plantshuman.peopleandgreen.domain.diagnosis.PlantEnvironmentMapping;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,8 +25,11 @@ public class Plant {
     private String plantEnglishName;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "type_id", nullable = true)
-    private PlantEnvironment plantEnvironment;
+    @JoinColumn(name = "primary_type_id", nullable = true)
+    private PlantEnvironment primaryEnvironment;
+
+    @OneToMany(mappedBy = "plant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlantEnvironmentMapping> environmentMappings = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private ManageDifficulty manageDifficulty;
@@ -44,6 +51,10 @@ public class Plant {
 
     @Column(nullable = false)
     private String recommendedIndoorLocation;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private AirPurification airPurification;
 
     @Column(nullable = false)
     private String petSafety;
