@@ -1,4 +1,4 @@
-package bssm.plantshuman.peopleandgreen.domain.plantEnvironment;
+package bssm.plantshuman.peopleandgreen.domain.diagnosis;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
