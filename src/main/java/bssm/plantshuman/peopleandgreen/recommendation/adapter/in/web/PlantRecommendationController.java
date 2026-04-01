@@ -3,6 +3,7 @@ package bssm.plantshuman.peopleandgreen.recommendation.adapter.in.web;
 import bssm.plantshuman.peopleandgreen.recommendation.adapter.in.web.dto.request.RecommendPlantsRequest;
 import bssm.plantshuman.peopleandgreen.recommendation.adapter.in.web.dto.response.RecommendPlantsResponse;
 import bssm.plantshuman.peopleandgreen.recommendation.application.port.in.RecommendPlantsUseCase;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +19,7 @@ public class PlantRecommendationController {
     private final RecommendPlantsUseCase recommendPlantsUseCase;
 
     @PostMapping
-    public ResponseEntity<RecommendPlantsResponse> recommend(@RequestBody RecommendPlantsRequest request) {
+    public ResponseEntity<RecommendPlantsResponse> recommend(@Valid @RequestBody RecommendPlantsRequest request) {
         return ResponseEntity.ok(RecommendPlantsResponse.from(recommendPlantsUseCase.recommend(request.toCommand())));
     }
 }

@@ -27,8 +27,8 @@ public class JsonPlantCatalogAdapter implements LoadPlantCatalogPort {
     void load() {
         ClassPathResource resource = new ClassPathResource("recommendation/plant-catalog.json");
         try (InputStream inputStream = resource.getInputStream()) {
-            this.catalog = objectMapper.readValue(inputStream, new TypeReference<>() {
-            });
+            this.catalog = List.copyOf(objectMapper.readValue(inputStream, new TypeReference<List<PlantCatalogItem>>() {
+            }));
         } catch (IOException exception) {
             throw new UncheckedIOException("Failed to load plant recommendation catalog", exception);
         }

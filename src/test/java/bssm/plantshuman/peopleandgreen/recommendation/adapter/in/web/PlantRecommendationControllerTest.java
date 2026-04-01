@@ -40,7 +40,7 @@ class PlantRecommendationControllerTest {
                 HumidityBand.HIGH,
                 CareLevel.LOW,
                 ExperienceLevel.BEGINNER,
-                true,
+                Boolean.TRUE,
                 PlacementType.BATHROOM
         );
 
@@ -64,7 +64,26 @@ class PlantRecommendationControllerTest {
                 HumidityBand.HIGH,
                 CareLevel.LOW,
                 ExperienceLevel.BEGINNER,
-                true,
+                Boolean.TRUE,
+                PlacementType.BATHROOM
+        );
+
+        assertThrows(IllegalArgumentException.class, () -> controller.recommend(request));
+    }
+
+    @Test
+    void rejectsRequestWhenHasPetIsMissing() {
+        RecommendPlantsUseCase useCase = new StubRecommendPlantsUseCase();
+        PlantRecommendationController controller = new PlantRecommendationController(useCase);
+
+        RecommendPlantsRequest request = new RecommendPlantsRequest(
+                SunlightLevel.MEDIUM,
+                VentilationLevel.NORMAL,
+                TemperatureBand.NORMAL,
+                HumidityBand.HIGH,
+                CareLevel.LOW,
+                ExperienceLevel.BEGINNER,
+                null,
                 PlacementType.BATHROOM
         );
 
