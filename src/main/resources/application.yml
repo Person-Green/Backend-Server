@@ -7,8 +7,39 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
     show-sql: true
+
+recommendation:
+  policy:
+    sunlight-exact-score: 30
+    sunlight-adjacent-score: 15
+    ventilation-exact-score: 10
+    ventilation-adjacent-score: 5
+    temperature-exact-score: 20
+    temperature-soft-margin: 3
+    temperature-hard-margin: 7
+    humidity-exact-score: 15
+    humidity-soft-margin: 10
+    humidity-hard-margin: 20
+    low-care-long-cycle-days: 14
+    low-care-medium-cycle-days: 7
+    low-care-long-cycle-score: 5
+    low-care-medium-cycle-score: 3
+    low-care-short-cycle-score: 1
+    medium-care-min-cycle-days: 7
+    medium-care-max-cycle-days: 14
+    medium-care-ideal-score: 5
+    medium-care-long-cycle-score: 4
+    medium-care-short-cycle-score: 3
+    high-care-short-cycle-days: 7
+    high-care-medium-cycle-days: 14
+    high-care-short-cycle-score: 5
+    high-care-medium-cycle-score: 4
+    high-care-long-cycle-score: 3
+    pet-caution-penalty: 18
+    pet-toxic-penalty: 100
+    max-recommendations: 10
