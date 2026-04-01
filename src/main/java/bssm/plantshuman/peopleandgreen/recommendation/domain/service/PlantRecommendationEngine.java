@@ -12,6 +12,7 @@ import bssm.plantshuman.peopleandgreen.recommendation.domain.model.PlacementType
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.PlantCatalogItem;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.PlantRecommendation;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendationPolicy;
+import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendPlantsResult;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.SunlightLevel;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.TemperatureBand;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.UserProfile;
@@ -39,18 +40,28 @@ public class PlantRecommendationEngine {
     }
 
     public List<PlantRecommendation> recommend(UserProfile userProfile, List<PlantCatalogItem> catalog) {
+        return recommendAll(userProfile, catalog).plants();
+    }
+
+    public RecommendPlantsResult recommendAll(UserProfile userProfile, List<PlantCatalogItem> catalog) {
         EnvironmentType representativeEnvironment =
                 representativeEnvironmentResolver.resolve(userProfile.environment());
         List<EnvironmentType> secondaryTags =
                 secondaryEnvironmentTagResolver.resolve(userProfile.environment(), representativeEnvironment);
 
-        return catalog.stream()
+        List<PlantRecommendation> recommendations = catalog.stream()
                 .filter(plant -> passesHardFilter(userProfile, plant))
                 .map(plant -> toRecommendation(plant, userProfile, representativeEnvironment, secondaryTags))
                 .sorted(Comparator.comparingInt(PlantRecommendation::score)
                         .reversed()
                         .thenComparing(PlantRecommendation::plantId))
                 .toList();
+
+        return new RecommendPlantsResult(
+                representativeEnvironment,
+                secondaryTags,
+                recommendations
+        );
     }
 
     private boolean passesHardFilter(UserProfile userProfile, PlantCatalogItem plant) {
@@ -142,10 +153,11 @@ public class PlantRecommendationEngine {
     }
 
     private int rangeBandScore(IntRange band, int min, int max, int maxScore, int softMargin) {
-        if (distanceBetween(band.min(), band.max(), min, max) == 0) {
+        int distance = distanceBetween(band.min(), band.max(), min, max);
+        if (distance == 0) {
             return maxScore;
         }
-        if (distanceBetween(band.min(), band.max(), min, max) <= softMargin) {
+        if (distance <= softMargin) {
             return maxScore / 2;
         }
         return 0;
@@ -168,11 +180,7 @@ public class PlantRecommendationEngine {
     }
 
     private int waterScore(CareLevel careLevel, int averageDays) {
-        return switch (careLevel) {
-            case LOW -> averageDays >= 14 ? 5 : averageDays >= 7 ? 3 : 1;
-            case MEDIUM -> averageDays >= 7 && averageDays <= 14 ? 5 : averageDays > 14 ? 4 : 3;
-            case HIGH -> averageDays <= 7 ? 5 : averageDays <= 14 ? 4 : 3;
-        };
+        return recommendationPolicy.waterScore(careLevel, averageDays);
     }
 
     private int environmentBonus(

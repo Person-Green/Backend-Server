@@ -1,10 +1,19 @@
 package bssm.plantshuman.peopleandgreen.recommendation.adapter.out.persistence;
 
+import bssm.plantshuman.peopleandgreen.recommendation.domain.model.AirPurificationLevel;
+import bssm.plantshuman.peopleandgreen.recommendation.domain.model.DifficultyLevel;
+import bssm.plantshuman.peopleandgreen.recommendation.domain.model.EnvironmentType;
+import bssm.plantshuman.peopleandgreen.recommendation.domain.model.FitLevel;
+import bssm.plantshuman.peopleandgreen.recommendation.domain.model.PetSafetyLevel;
+import bssm.plantshuman.peopleandgreen.recommendation.domain.model.PlacementType;
 import bssm.plantshuman.peopleandgreen.recommendation.adapter.out.persistence.entity.RecommendationPlantConditionEntity;
 import bssm.plantshuman.peopleandgreen.recommendation.adapter.out.persistence.entity.RecommendationPlantEntity;
 import bssm.plantshuman.peopleandgreen.recommendation.adapter.out.persistence.entity.RecommendationPlantEnvironmentFitEntity;
 import bssm.plantshuman.peopleandgreen.recommendation.adapter.out.persistence.repository.RecommendationPlantRepository;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.PlantCatalogItem;
+import bssm.plantshuman.peopleandgreen.recommendation.domain.model.SizeCategory;
+import bssm.plantshuman.peopleandgreen.recommendation.domain.model.SunlightLevel;
+import bssm.plantshuman.peopleandgreen.recommendation.domain.model.VentilationLevel;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -43,10 +52,9 @@ public class RecommendationCatalogSeedService implements ApplicationRunner {
         seedCatalog();
     }
 
-    @Transactional
     void seedCatalog() {
         List<PlantCatalogItem> seedData = loadSeedData();
-        if (recommendationPlantRepository.count() > 0) {
+        if (recommendationPlantRepository.existsAnyPlant()) {
             validateCatalog(seedData, recommendationPlantRepository.findAll());
             return;
         }
@@ -177,32 +185,32 @@ public class RecommendationCatalogSeedService implements ApplicationRunner {
     private record CatalogSnapshot(
             String nameKo,
             String nameEn,
-            Object difficulty,
-            Object petSafety,
-            Object airPurificationLevel,
-            Object sizeCategory,
+            DifficultyLevel difficulty,
+            PetSafetyLevel petSafety,
+            AirPurificationLevel airPurificationLevel,
+            SizeCategory sizeCategory,
             String displayWaterCycle,
             String displayTempRange,
             String displayHumidityRange,
             String displayLightRequirement,
             String oneLineDescription,
             String recommendedLocationText,
-            Object sunlightLevel,
-            Object ventilationNeed,
+            SunlightLevel sunlightLevel,
+            VentilationLevel ventilationNeed,
             Integer tempMin,
             Integer tempMax,
             Integer humidityMin,
             Integer humidityMax,
             Integer waterCycleMinDays,
             Integer waterCycleMaxDays,
-            Set<?> supportedPlacements,
+            Set<PlacementType> supportedPlacements,
             Set<EnvironmentFitSnapshot> environmentFits
     ) {
     }
 
     private record EnvironmentFitSnapshot(
-            Object environmentType,
-            Object fitLevel
+            EnvironmentType environmentType,
+            FitLevel fitLevel
     ) {
     }
 }

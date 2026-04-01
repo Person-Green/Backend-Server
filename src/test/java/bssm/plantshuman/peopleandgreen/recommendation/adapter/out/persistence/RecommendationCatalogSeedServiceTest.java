@@ -20,7 +20,7 @@ class RecommendationCatalogSeedServiceTest {
     @Test
     void failsFastWhenExistingCatalogIsIncomplete() {
         RecommendationPlantRepository recommendationPlantRepository = mock(RecommendationPlantRepository.class);
-        when(recommendationPlantRepository.count()).thenReturn(1L);
+        when(recommendationPlantRepository.existsAnyPlant()).thenReturn(true);
         when(recommendationPlantRepository.findAll()).thenReturn(List.of(new RecommendationPlantEntity(
                 "PLT-001",
                 "스투키",

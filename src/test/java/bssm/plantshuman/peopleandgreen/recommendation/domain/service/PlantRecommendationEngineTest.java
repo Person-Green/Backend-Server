@@ -31,10 +31,66 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PlantRecommendationEngineTest {
 
+    private static final int SUNLIGHT_EXACT_SCORE = 30;
+    private static final int SUNLIGHT_ADJACENT_SCORE = 15;
+    private static final int VENTILATION_EXACT_SCORE = 10;
+    private static final int VENTILATION_ADJACENT_SCORE = 5;
+    private static final int TEMPERATURE_EXACT_SCORE = 20;
+    private static final int TEMPERATURE_SOFT_MARGIN = 3;
+    private static final int TEMPERATURE_HARD_MARGIN = 7;
+    private static final int HUMIDITY_EXACT_SCORE = 15;
+    private static final int HUMIDITY_SOFT_MARGIN = 10;
+    private static final int HUMIDITY_HARD_MARGIN = 20;
+    private static final int LOW_CARE_LONG_CYCLE_DAYS = 14;
+    private static final int LOW_CARE_MEDIUM_CYCLE_DAYS = 7;
+    private static final int LOW_CARE_LONG_CYCLE_SCORE = 5;
+    private static final int LOW_CARE_MEDIUM_CYCLE_SCORE = 3;
+    private static final int LOW_CARE_SHORT_CYCLE_SCORE = 1;
+    private static final int MEDIUM_CARE_MIN_CYCLE_DAYS = 7;
+    private static final int MEDIUM_CARE_MAX_CYCLE_DAYS = 14;
+    private static final int MEDIUM_CARE_IDEAL_SCORE = 5;
+    private static final int MEDIUM_CARE_LONG_CYCLE_SCORE = 4;
+    private static final int MEDIUM_CARE_SHORT_CYCLE_SCORE = 3;
+    private static final int HIGH_CARE_SHORT_CYCLE_DAYS = 7;
+    private static final int HIGH_CARE_MEDIUM_CYCLE_DAYS = 14;
+    private static final int HIGH_CARE_SHORT_CYCLE_SCORE = 5;
+    private static final int HIGH_CARE_MEDIUM_CYCLE_SCORE = 4;
+    private static final int HIGH_CARE_LONG_CYCLE_SCORE = 3;
+    private static final int PET_CAUTION_PENALTY = 18;
+    private static final int PET_TOXIC_PENALTY = 100;
+
     private final PlantRecommendationEngine engine = new PlantRecommendationEngine(
             new RepresentativeEnvironmentResolver(),
             new SecondaryEnvironmentTagResolver(),
-            new RecommendationPolicy(30, 15, 10, 5, 20, 3, 7, 15, 10, 20, 18, 100)
+            new RecommendationPolicy(
+                    SUNLIGHT_EXACT_SCORE,
+                    SUNLIGHT_ADJACENT_SCORE,
+                    VENTILATION_EXACT_SCORE,
+                    VENTILATION_ADJACENT_SCORE,
+                    TEMPERATURE_EXACT_SCORE,
+                    TEMPERATURE_SOFT_MARGIN,
+                    TEMPERATURE_HARD_MARGIN,
+                    HUMIDITY_EXACT_SCORE,
+                    HUMIDITY_SOFT_MARGIN,
+                    HUMIDITY_HARD_MARGIN,
+                    LOW_CARE_LONG_CYCLE_DAYS,
+                    LOW_CARE_MEDIUM_CYCLE_DAYS,
+                    LOW_CARE_LONG_CYCLE_SCORE,
+                    LOW_CARE_MEDIUM_CYCLE_SCORE,
+                    LOW_CARE_SHORT_CYCLE_SCORE,
+                    MEDIUM_CARE_MIN_CYCLE_DAYS,
+                    MEDIUM_CARE_MAX_CYCLE_DAYS,
+                    MEDIUM_CARE_IDEAL_SCORE,
+                    MEDIUM_CARE_LONG_CYCLE_SCORE,
+                    MEDIUM_CARE_SHORT_CYCLE_SCORE,
+                    HIGH_CARE_SHORT_CYCLE_DAYS,
+                    HIGH_CARE_MEDIUM_CYCLE_DAYS,
+                    HIGH_CARE_SHORT_CYCLE_SCORE,
+                    HIGH_CARE_MEDIUM_CYCLE_SCORE,
+                    HIGH_CARE_LONG_CYCLE_SCORE,
+                    PET_CAUTION_PENALTY,
+                    PET_TOXIC_PENALTY
+            )
     );
 
     @Test
