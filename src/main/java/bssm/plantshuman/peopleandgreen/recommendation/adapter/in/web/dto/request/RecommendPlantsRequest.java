@@ -8,15 +8,24 @@ import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendPlan
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.SunlightLevel;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.TemperatureBand;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.VentilationLevel;
+import jakarta.validation.constraints.NotNull;
 
 public record RecommendPlantsRequest(
+        @NotNull(message = "sunlight is required")
         SunlightLevel sunlight,
+        @NotNull(message = "ventilation is required")
         VentilationLevel ventilation,
+        @NotNull(message = "temperature is required")
         TemperatureBand temperature,
+        @NotNull(message = "humidity is required")
         HumidityBand humidity,
+        @NotNull(message = "careLevel is required")
         CareLevel careLevel,
+        @NotNull(message = "experienceLevel is required")
         ExperienceLevel experienceLevel,
-        boolean hasPet,
+        @NotNull(message = "hasPet is required")
+        Boolean hasPet,
+        @NotNull(message = "placement is required")
         PlacementType placement
 ) {
 
@@ -29,7 +38,7 @@ public record RecommendPlantsRequest(
                 humidity,
                 careLevel,
                 experienceLevel,
-                hasPet,
+                hasPet.booleanValue(),
                 placement
         );
     }
@@ -52,6 +61,9 @@ public record RecommendPlantsRequest(
         }
         if (experienceLevel == null) {
             throw new IllegalArgumentException("experienceLevel is required");
+        }
+        if (hasPet == null) {
+            throw new IllegalArgumentException("hasPet is required");
         }
         if (placement == null) {
             throw new IllegalArgumentException("placement is required");
