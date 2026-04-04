@@ -111,6 +111,8 @@ jobs:
           SSHPASS="$NGINX_SSH_PASSWORD" sshpass -e ssh -o StrictHostKeyChecking=no \
             -p ${{ secrets.NGINX_SSH_PORT }} \
             ${{ secrets.NGINX_SSH_USER }}@${{ secrets.NGINX_SSH_HOST }} \
-            "sudo sed -i 's|proxy_pass http://${APP_HOST}:[0-9]*;|proxy_pass http://${APP_HOST}:${ACTIVE_PORT};|' ${NGINX_CONF} && sudo nginx -s reload"
+            "if command -v sudo >/dev/null 2>&1; then SUDO='sudo'; else SUDO=''; fi; \
+            \$SUDO sed -i 's|proxy_pass http://${APP_HOST}:[0-9]*;|proxy_pass http://${APP_HOST}:${ACTIVE_PORT};|' ${NGINX_CONF} && \
+            \$SUDO nginx -s reload"
 
           echo "Nginx 전환 완료: ${APP_HOST}:${ACTIVE_PORT}"
