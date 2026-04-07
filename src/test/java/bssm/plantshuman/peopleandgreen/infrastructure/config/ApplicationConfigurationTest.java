@@ -11,12 +11,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ApplicationConfigurationTest {
 
     @Test
-    void usesSchemaValidationForMainApplicationConfig() {
+    void usesConfiguredHibernateDdlAutoForMainApplicationConfig() {
         YamlPropertiesFactoryBean factoryBean = new YamlPropertiesFactoryBean();
         factoryBean.setResources(new FileSystemResource("src/main/resources/application.yml"));
 
         Properties properties = factoryBean.getObject();
 
-        assertEquals("validate", properties.getProperty("spring.jpa.hibernate.ddl-auto"));
+        assertEquals("update", properties.getProperty("spring.jpa.hibernate.ddl-auto"));
     }
 }
