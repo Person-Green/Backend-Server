@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 @Service
 public class GetPlantCatalogService implements GetPlantCatalogUseCase {
 
-    private static final int DEFAULT_SIZE = 20;
     private static final int MAX_SIZE = 50;
 
     private final LoadPlantCatalogPagePort loadPlantCatalogPagePort;
@@ -25,10 +24,13 @@ public class GetPlantCatalogService implements GetPlantCatalogUseCase {
 
     @Override
     public PlantCatalogCursorPage getCatalog(Long userId, String cursor, int size) {
-        int normalizedSize = size <= 0 ? DEFAULT_SIZE : Math.min(size, MAX_SIZE);
-        List<PlantCatalogItem> items = loadPlantCatalogPagePort.loadPage(cursor, normalizedSize + 1);
-        boolean hasNext = items.size() > normalizedSize;
-        List<PlantCatalogItem> pageItems = hasNext ? items.subList(0, normalizedSize) : items;
+        if (size < 1 || size > MAX_SIZE) {
+            throw new IllegalArgumentException("Catalog size must be between 1 and " + MAX_SIZE);
+        }
+
+        List<PlantCatalogItem> items = loadPlantCatalogPagePort.loadPage(cursor, size + 1);
+        boolean hasNext = items.size() > size;
+        List<PlantCatalogItem> pageItems = hasNext ? items.subList(0, size) : items;
         Set<String> favoriteIds = loadPlantCatalogPagePort.loadFavoritePlantIds(
                 userId,
                 pageItems.stream().map(PlantCatalogItem::plantId).collect(Collectors.toSet())
