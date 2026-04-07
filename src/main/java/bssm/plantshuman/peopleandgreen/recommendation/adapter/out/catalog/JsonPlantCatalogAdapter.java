@@ -1,6 +1,7 @@
 package bssm.plantshuman.peopleandgreen.recommendation.adapter.out.catalog;
 
 import bssm.plantshuman.peopleandgreen.recommendation.application.port.out.LoadPlantCatalogPort;
+import bssm.plantshuman.peopleandgreen.recommendation.domain.exception.FailedLoadDataException;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.PlantCatalogItem;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.List;
 
 @Component
@@ -30,7 +30,7 @@ public class JsonPlantCatalogAdapter implements LoadPlantCatalogPort {
             this.catalog = List.copyOf(objectMapper.readValue(inputStream, new TypeReference<List<PlantCatalogItem>>() {
             }));
         } catch (IOException exception) {
-            throw new UncheckedIOException("Failed to load plant recommendation catalog", exception);
+            throw new FailedLoadDataException();
         }
     }
 

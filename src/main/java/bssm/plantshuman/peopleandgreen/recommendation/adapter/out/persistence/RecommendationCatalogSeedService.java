@@ -1,5 +1,6 @@
 package bssm.plantshuman.peopleandgreen.recommendation.adapter.out.persistence;
 
+import bssm.plantshuman.peopleandgreen.recommendation.domain.exception.FailedLoadDataException;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.AirPurificationLevel;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.DifficultyLevel;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.EnvironmentType;
@@ -25,7 +26,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -67,7 +67,7 @@ public class RecommendationCatalogSeedService implements ApplicationRunner {
             return objectMapper.readValue(inputStream, new TypeReference<>() {
             });
         } catch (IOException exception) {
-            throw new UncheckedIOException("Failed to load recommendation seed data", exception);
+            throw new FailedLoadDataException();
         }
     }
 
