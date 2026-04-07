@@ -20,6 +20,7 @@ import bssm.plantshuman.peopleandgreen.recommendation.domain.model.TemperatureBa
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.VentilationLevel;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.List;
 
@@ -68,7 +69,7 @@ class PlantRecommendationControllerTest {
                 PlacementType.BATHROOM
         );
 
-        assertThrows(IllegalArgumentException.class, () -> controller.recommend(request));
+        assertThrows(MethodArgumentNotValidException.class, () -> controller.recommend(request));
     }
 
     @Test
@@ -87,7 +88,7 @@ class PlantRecommendationControllerTest {
                 PlacementType.BATHROOM
         );
 
-        assertThrows(IllegalArgumentException.class, () -> controller.recommend(request));
+        assertThrows(MethodArgumentNotValidException.class, () -> controller.recommend(request));
     }
 
     private static final class StubRecommendPlantsUseCase implements RecommendPlantsUseCase {
