@@ -13,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestValueException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -138,6 +139,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(GlobalErrorProperty.INTERNAL_SERVER_ERROR.getStatus())
                 .body(new ErrorResponse(GlobalErrorProperty.INTERNAL_SERVER_ERROR));
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
+        logHandledException(e);
+
+        return ResponseEntity
+                .status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .body(new ErrorResponse(GlobalErrorProperty.TOO_LARGE_FILE));
     }
 
     private void logHandledException(Exception e) {
