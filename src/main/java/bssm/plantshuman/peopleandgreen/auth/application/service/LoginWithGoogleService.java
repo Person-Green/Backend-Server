@@ -41,9 +41,9 @@ public class LoginWithGoogleService implements LoginWithGoogleUseCase {
     }
 
     @Override
-    public AuthTokens login(String authorizationCode, String state, String redirectUri) {
+    public AuthTokens login(String authorizationCode, String state, String stateNonce, String redirectUri) {
         PrepareGoogleAuthorizationService.validateRedirectUri(redirectUri, properties);
-        issueJwtPort.validateGoogleState(state, redirectUri);
+        issueJwtPort.validateGoogleState(state, redirectUri, stateNonce);
 
         GoogleUserInfo googleUserInfo = exchangeGoogleAuthCodePort.exchange(authorizationCode, redirectUri);
         AppUser user = userAccountPort.upsertGoogleUser(googleUserInfo);

@@ -4,5 +4,5 @@ import bssm.plantshuman.peopleandgreen.auth.domain.model.AuthTokens;
 
 public interface LoginWithGoogleUseCase {
 
-    AuthTokens login(String authorizationCode, String state, String redirectUri);
+    AuthTokens login(String authorizationCode, String state, String stateNonce, String redirectUri);
 }

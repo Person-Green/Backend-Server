@@ -3,6 +3,7 @@ package bssm.plantshuman.peopleandgreen.auth.adapter.out.security;
 import bssm.plantshuman.peopleandgreen.auth.application.config.AuthJwtProperties;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.IssueJwtPort;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,7 @@ public class JwtTokenProvider implements IssueJwtPort {
 
     private static final String TOKEN_TYPE = "tokenType";
     private static final String REDIRECT_URI = "redirectUri";
+    private static final String STATE_NONCE = "stateNonce";
     private static final String ACCESS = "ACCESS";
     private static final String REFRESH = "REFRESH";
     private static final String GOOGLE_STATE = "GOOGLE_STATE";
@@ -26,6 +28,12 @@ public class JwtTokenProvider implements IssueJwtPort {
 
     public JwtTokenProvider(AuthJwtProperties properties) {
         this.properties = properties;
+        if (properties.secret() == null || properties.secret().isBlank()) {
+            throw new IllegalStateException("AUTH_JWT_SECRET must be configured");
+        }
+        if (properties.secret().length() < 32) {
+            throw new IllegalStateException("AUTH_JWT_SECRET must be at least 32 characters");
+        }
         this.secretKey = Keys.hmacShaKeyFor(properties.secret().getBytes(StandardCharsets.UTF_8));
     }
 
@@ -50,13 +58,14 @@ public class JwtTokenProvider implements IssueJwtPort {
     }
 
     @Override
-    public String issueGoogleState(String redirectUri) {
+    public String issueGoogleState(String redirectUri, String stateNonce) {
         Instant now = Instant.now();
         return Jwts.builder()
                 .issuer(properties.issuer())
                 .subject("google-oauth-state")
                 .claim(TOKEN_TYPE, GOOGLE_STATE)
                 .claim(REDIRECT_URI, redirectUri)
+                .claim(STATE_NONCE, stateNonce)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusSeconds(properties.stateTokenValiditySeconds())))
                 .signWith(secretKey)
@@ -75,16 +84,25 @@ public class JwtTokenProvider implements IssueJwtPort {
     }
 
     @Override
-    public void validateGoogleState(String token, String redirectUri) {
-        Claims claims = parseClaims(token);
-        String tokenType = claims.get(TOKEN_TYPE, String.class);
-        if (!GOOGLE_STATE.equals(tokenType)) {
-            throw new IllegalArgumentException("Invalid google oauth state type");
-        }
+    public void validateGoogleState(String token, String redirectUri, String stateNonce) {
+        try {
+            Claims claims = parseClaims(token);
+            String tokenType = claims.get(TOKEN_TYPE, String.class);
+            if (!GOOGLE_STATE.equals(tokenType)) {
+                throw new IllegalArgumentException("Invalid google oauth state type");
+            }
 
-        String expectedRedirectUri = claims.get(REDIRECT_URI, String.class);
-        if (!redirectUri.equals(expectedRedirectUri)) {
-            throw new IllegalArgumentException("Redirect URI does not match issued state");
+            String expectedRedirectUri = claims.get(REDIRECT_URI, String.class);
+            if (!redirectUri.equals(expectedRedirectUri)) {
+                throw new IllegalArgumentException("Redirect URI does not match issued state");
+            }
+
+            String expectedStateNonce = claims.get(STATE_NONCE, String.class);
+            if (!stateNonce.equals(expectedStateNonce)) {
+                throw new IllegalArgumentException("OAuth state nonce does not match");
+            }
+        } catch (JwtException exception) {
+            throw new IllegalArgumentException("Invalid google oauth state", exception);
         }
     }
 

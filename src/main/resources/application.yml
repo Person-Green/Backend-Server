@@ -1,13 +1,15 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   datasource:
-    url: jdbc:mysql://localhost:3306/peopleandhuman?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
-    username: people
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://127.0.0.1:3306/peopleandhuman?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true}
+    username: ${SPRING_DATASOURCE_USERNAME:}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -16,7 +18,7 @@ spring:
 auth:
   jwt:
     issuer: peopleandgreen
-    secret: ${AUTH_JWT_SECRET}
+    secret: ${AUTH_JWT_SECRET:}
     access-token-validity-seconds: 900
     refresh-token-validity-seconds: 1209600
     state-token-validity-seconds: 300
@@ -33,7 +35,10 @@ auth:
       - ${GOOGLE_REDIRECT_URI:http://localhost:3000/auth/google/callback}
 
 springdoc:
+  api-docs:
+    enabled: ${SPRINGDOC_ENABLED:false}
   swagger-ui:
+    enabled: ${SPRINGDOC_ENABLED:false}
     path: /swagger-ui.html
     operations-sorter: alpha
     tags-sorter: alpha

@@ -20,8 +20,8 @@ class AuthControllerTest {
     @Test
     void returnsAuthorizationUrlAndState() {
         AuthController controller = new AuthController(
-                redirectUri -> new PreparedGoogleAuthorization("https://accounts.google.com/o/oauth2/v2/auth?state=STATE_TOKEN", "STATE_TOKEN"),
-                (authorizationCode, state, redirectUri) -> tokens(),
+                redirectUri -> new PreparedGoogleAuthorization("https://accounts.google.com/o/oauth2/v2/auth?state=STATE_TOKEN", "STATE_TOKEN", "STATE_NONCE"),
+                (authorizationCode, state, stateNonce, redirectUri) -> tokens(),
                 refreshToken -> tokens()
         );
 
@@ -30,30 +30,33 @@ class AuthControllerTest {
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals("STATE_TOKEN", response.getBody().state());
+        assertEquals(true, response.getHeaders().getFirst("Set-Cookie").contains("oauth_state_nonce=STATE_NONCE"));
     }
 
     @Test
     void mapsGoogleLoginResult() {
         AuthController controller = new AuthController(
-                redirectUri -> new PreparedGoogleAuthorization("https://accounts.google.com/o/oauth2/v2/auth?state=STATE_TOKEN", "STATE_TOKEN"),
-                (authorizationCode, state, redirectUri) -> tokens(),
+                redirectUri -> new PreparedGoogleAuthorization("https://accounts.google.com/o/oauth2/v2/auth?state=STATE_TOKEN", "STATE_TOKEN", "STATE_NONCE"),
+                (authorizationCode, state, stateNonce, redirectUri) -> tokens(),
                 refreshToken -> tokens()
         );
 
         ResponseEntity<AuthTokenResponse> response = controller.loginWithGoogle(
-                new GoogleLoginRequest("AUTH_CODE", "STATE_TOKEN", "http://localhost:3000/auth/google/callback")
+                new GoogleLoginRequest("AUTH_CODE", "STATE_TOKEN", "http://localhost:3000/auth/google/callback"),
+                "STATE_NONCE"
         );
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals("ACCESS_TOKEN", response.getBody().accessToken());
         assertEquals(1L, response.getBody().user().id());
+        assertEquals(true, response.getHeaders().getFirst("Set-Cookie").contains("Max-Age=0"));
     }
 
     @Test
     void mapsRefreshResult() {
         AuthController controller = new AuthController(
-                redirectUri -> new PreparedGoogleAuthorization("https://accounts.google.com/o/oauth2/v2/auth?state=STATE_TOKEN", "STATE_TOKEN"),
-                (authorizationCode, state, redirectUri) -> tokens(),
+                redirectUri -> new PreparedGoogleAuthorization("https://accounts.google.com/o/oauth2/v2/auth?state=STATE_TOKEN", "STATE_TOKEN", "STATE_NONCE"),
+                (authorizationCode, state, stateNonce, redirectUri) -> tokens(),
                 refreshToken -> tokens()
         );
 

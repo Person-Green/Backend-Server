@@ -10,9 +10,9 @@ public interface IssueJwtPort {
 
     long getRefreshTokenValiditySeconds();
 
-    String issueGoogleState(String redirectUri);
+    String issueGoogleState(String redirectUri, String stateNonce);
 
-    void validateGoogleState(String token, String redirectUri);
+    void validateGoogleState(String token, String redirectUri, String stateNonce);
 
     Long parseUserId(String token);
 

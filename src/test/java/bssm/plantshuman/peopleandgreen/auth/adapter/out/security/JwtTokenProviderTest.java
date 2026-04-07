@@ -36,16 +36,35 @@ class JwtTokenProviderTest {
 
     @Test
     void validatesIssuedGoogleStateAgainstRedirectUri() {
-        String state = tokenProvider.issueGoogleState("http://localhost:3000/auth/google/callback");
+        String state = tokenProvider.issueGoogleState("http://localhost:3000/auth/google/callback", "nonce");
 
-        tokenProvider.validateGoogleState(state, "http://localhost:3000/auth/google/callback");
+        tokenProvider.validateGoogleState(state, "http://localhost:3000/auth/google/callback", "nonce");
     }
 
     @Test
     void rejectsGoogleStateWhenRedirectUriDoesNotMatch() {
-        String state = tokenProvider.issueGoogleState("http://localhost:3000/auth/google/callback");
+        String state = tokenProvider.issueGoogleState("http://localhost:3000/auth/google/callback", "nonce");
 
         assertThrows(IllegalArgumentException.class, () ->
-                tokenProvider.validateGoogleState(state, "http://localhost:3000/auth/google/other"));
+                tokenProvider.validateGoogleState(state, "http://localhost:3000/auth/google/other", "nonce"));
+    }
+
+    @Test
+    void rejectsGoogleStateWhenNonceDoesNotMatch() {
+        String state = tokenProvider.issueGoogleState("http://localhost:3000/auth/google/callback", "nonce");
+
+        assertThrows(IllegalArgumentException.class, () ->
+                tokenProvider.validateGoogleState(state, "http://localhost:3000/auth/google/callback", "other"));
+    }
+
+    @Test
+    void rejectsProviderCreationWhenSecretIsMissing() {
+        assertThrows(IllegalStateException.class, () -> new JwtTokenProvider(new AuthJwtProperties(
+                "peopleandgreen",
+                "",
+                900,
+                1209600,
+                300
+        )));
     }
 }

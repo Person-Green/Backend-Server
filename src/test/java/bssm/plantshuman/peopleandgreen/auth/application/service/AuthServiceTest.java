@@ -41,6 +41,7 @@ class AuthServiceTest {
         PreparedGoogleAuthorization authorization = service.prepare("http://localhost:3000/auth/google/callback");
 
         assertEquals("STATE_TOKEN", authorization.state());
+        assertEquals(true, authorization.stateNonce() != null && !authorization.stateNonce().isBlank());
         assertEquals(true, authorization.authorizationUrl().contains("state=STATE_TOKEN"));
     }
 
@@ -56,7 +57,7 @@ class AuthServiceTest {
                 new RefreshTokenHasher()
         );
 
-        var tokens = service.login("AUTH_CODE", "STATE_TOKEN", "http://localhost:3000/auth/google/callback");
+        var tokens = service.login("AUTH_CODE", "STATE_TOKEN", "STATE_NONCE", "http://localhost:3000/auth/google/callback");
 
         assertEquals("ACCESS_TOKEN", tokens.accessToken());
         assertEquals("REFRESH_TOKEN", tokens.refreshToken());
@@ -77,7 +78,7 @@ class AuthServiceTest {
         );
 
         assertThrows(IllegalArgumentException.class, () ->
-                service.login("AUTH_CODE", "STATE_TOKEN", "http://localhost:3000/other"));
+                service.login("AUTH_CODE", "STATE_TOKEN", "STATE_NONCE", "http://localhost:3000/other"));
     }
 
     @Test
@@ -97,6 +98,8 @@ class AuthServiceTest {
     }
 
     private static final class StubIssueJwtPort implements IssueJwtPort {
+
+        private String issuedStateNonce;
 
         @Override
         public String issueAccessToken(Long userId) {
@@ -119,14 +122,18 @@ class AuthServiceTest {
         }
 
         @Override
-        public String issueGoogleState(String redirectUri) {
+        public String issueGoogleState(String redirectUri, String stateNonce) {
+            this.issuedStateNonce = stateNonce;
             return "STATE_TOKEN";
         }
 
         @Override
-        public void validateGoogleState(String token, String redirectUri) {
+        public void validateGoogleState(String token, String redirectUri, String stateNonce) {
             if (!"STATE_TOKEN".equals(token)) {
                 throw new IllegalArgumentException("invalid state");
+            }
+            if (!stateNonce.equals(issuedStateNonce) && !"STATE_NONCE".equals(stateNonce)) {
+                throw new IllegalArgumentException("invalid state nonce");
             }
         }
 
