@@ -13,6 +13,31 @@ spring:
         format_sql: true
     show-sql: true
 
+auth:
+  jwt:
+    issuer: peopleandgreen
+    secret: ${AUTH_JWT_SECRET}
+    access-token-validity-seconds: 900
+    refresh-token-validity-seconds: 1209600
+    state-token-validity-seconds: 300
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:}
+    client-secret: ${GOOGLE_CLIENT_SECRET:}
+    token-uri: https://oauth2.googleapis.com/token
+    authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+    scope:
+      - openid
+      - email
+      - profile
+    allowed-redirect-uris:
+      - ${GOOGLE_REDIRECT_URI:http://localhost:3000/auth/google/callback}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+
 recommendation:
   policy:
     sunlight-exact-score: 30
