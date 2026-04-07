@@ -219,24 +219,29 @@ public class PlantRecommendationEngine {
             int placementScore,
             int difficultyScore
     ) {
-        List<String> reasons = new ArrayList<>();
+        List<WeightedMessage> reasons = new ArrayList<>();
         if (plant.condition().sunlightLevel() == userProfile.environment().sunlight()) {
-            reasons.add("현재 햇빛 환경에 잘 맞아요.");
+            reasons.add(new WeightedMessage("현재 햇빛 환경에 잘 맞아요.",
+                    recommendationPolicy.sunlightExactScore(), 0));
         }
         if (isHumidityInside(userProfile, plant)) {
-            reasons.add("현재 습도 조건에 잘 적응할 가능성이 높아요.");
+            reasons.add(new WeightedMessage("현재 습도 조건에 잘 적응할 가능성이 높아요.",
+                    recommendationPolicy.humidityExactScore(), 1));
         }
         if (placementScore == 5) {
-            reasons.add(locationReason(userProfile.placement()));
+            reasons.add(new WeightedMessage(locationReason(userProfile.placement()), placementScore, 2));
         }
         if (difficultyScore >= 6) {
-            reasons.add("관리 난이도가 현재 관리 가능 수준에 맞아요.");
+            reasons.add(new WeightedMessage("관리 난이도가 현재 관리 가능 수준에 맞아요.",
+                    difficultyScore, 3));
         }
         if (plant.environmentFits().stream()
                 .anyMatch(fit -> fit.environmentType() == representativeEnvironment && fit.fitLevel() == FitLevel.OPTIMAL)) {
-            reasons.add("현재 대표 환경 유형에 최적화된 식물이에요.");
+            reasons.add(new WeightedMessage("현재 대표 환경 유형에 최적화된 식물이에요.", 3, 4));
         }
-        return reasons.stream().distinct().limit(4).toList();
+        return prioritizeMessages(reasons).stream()
+                .limit(4)
+                .toList();
     }
 
     private boolean isHumidityInside(UserProfile userProfile, PlantCatalogItem plant) {
@@ -246,25 +251,52 @@ public class PlantRecommendationEngine {
     }
 
     private List<String> buildCautions(PlantCatalogItem plant, UserProfile userProfile) {
-        List<String> cautions = new ArrayList<>();
+        List<WeightedMessage> cautions = new ArrayList<>();
         if (userProfile.hasPet() && plant.petSafety() == PetSafetyLevel.CAUTION) {
-            cautions.add("반려동물이 잎을 씹지 않도록 주의해 주세요.");
+            cautions.add(new WeightedMessage("반려동물이 잎을 씹지 않도록 주의해 주세요.",
+                    recommendationPolicy.petCautionPenalty(), 0));
         }
         IntRange humidityBand = humidityRange(userProfile.environment().humidity());
         IntRange temperatureBand = temperatureRange(userProfile.environment().temperature());
+        int humiditySeverity = recommendationPolicy.humidityExactScore()
+                - rangeBandScore(
+                        humidityBand,
+                        plant.condition().humidityMin(),
+                        plant.condition().humidityMax(),
+                        recommendationPolicy.humidityExactScore(),
+                        recommendationPolicy.humiditySoftMargin()
+                );
+        int temperatureSeverity = recommendationPolicy.temperatureExactScore()
+                - rangeBandScore(
+                        temperatureBand,
+                        plant.condition().tempMin(),
+                        plant.condition().tempMax(),
+                        recommendationPolicy.temperatureExactScore(),
+                        recommendationPolicy.temperatureSoftMargin()
+                );
         if (humidityBand.max() < plant.condition().humidityMin()) {
-            cautions.add("건조해지면 잎 끝이 마를 수 있어요.");
+            cautions.add(new WeightedMessage("건조해지면 잎 끝이 마를 수 있어요.", humiditySeverity, 1));
         }
         if (humidityBand.min() > plant.condition().humidityMax()) {
-            cautions.add("과습에 주의해 주세요.");
+            cautions.add(new WeightedMessage("과습에 주의해 주세요.", humiditySeverity, 2));
         }
         if (temperatureBand.max() < plant.condition().tempMin()) {
-            cautions.add("저온에 오래 노출되지 않도록 관리해 주세요.");
+            cautions.add(new WeightedMessage("저온에 오래 노출되지 않도록 관리해 주세요.", temperatureSeverity, 3));
         }
         if (temperatureBand.min() > plant.condition().tempMax()) {
-            cautions.add("고온이 지속되면 잎 상태가 약해질 수 있어요.");
+            cautions.add(new WeightedMessage("고온이 지속되면 잎 상태가 약해질 수 있어요.", temperatureSeverity, 4));
         }
-        return cautions.stream().distinct().limit(2).toList();
+        return prioritizeMessages(cautions);
+    }
+
+    private List<String> prioritizeMessages(List<WeightedMessage> messages) {
+        return messages.stream()
+                .sorted(Comparator.comparingInt(WeightedMessage::priority)
+                        .reversed()
+                        .thenComparingInt(WeightedMessage::order))
+                .map(WeightedMessage::message)
+                .distinct()
+                .toList();
     }
 
     private String locationReason(PlacementType placementType) {
@@ -304,6 +336,9 @@ public class PlantRecommendationEngine {
             return leftMin - rightMax;
         }
         return 0;
+    }
+
+    private record WeightedMessage(String message, int priority, int order) {
     }
 
     private record IntRange(int min, int max) {
