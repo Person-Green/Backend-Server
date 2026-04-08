@@ -10,3 +10,26 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
+
+auth:
+  jwt:
+    issuer: peopleandgreen-test
+    secret: test-secret-key-test-secret-key-test-secret-key
+    access-token-validity-seconds: 900
+    refresh-token-validity-seconds: 1209600
+    state-token-validity-seconds: 300
+  google:
+    client-id: test-client-id
+    client-secret: test-client-secret
+    token-uri: https://oauth2.googleapis.com/token
+    authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+    scope:
+      - openid
+      - email
+      - profile
+    allowed-redirect-uris:
+      - http://localhost:3000/auth/google/callback
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

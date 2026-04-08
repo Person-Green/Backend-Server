@@ -2,7 +2,7 @@ version: '3'
 
 services:
   mysql:
-    container_name: people.local.db
+    container_name: people.local.dby
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: "root"
