@@ -3,6 +3,7 @@ SET NAMES utf8mb4;
 START TRANSACTION;
 
 DELETE FROM plant_environment_mapping;
+DELETE FROM favorite_plant;
 DELETE FROM plant;
 DELETE FROM plant_environment;
 

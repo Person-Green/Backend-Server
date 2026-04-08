@@ -50,8 +50,10 @@ class PlantCatalogServiceTest {
         service.add(1L, "PLT-001");
         service.remove(1L, "PLT-001");
 
-        assertEquals(1L, favoritePlantCommandPort.userId);
-        assertEquals("PLT-001", favoritePlantCommandPort.plantId);
+        assertEquals(1L, favoritePlantCommandPort.addUserId);
+        assertEquals("PLT-001", favoritePlantCommandPort.addPlantId);
+        assertEquals(1L, favoritePlantCommandPort.removeUserId);
+        assertEquals("PLT-001", favoritePlantCommandPort.removePlantId);
         assertEquals(true, favoritePlantCommandPort.removed);
     }
 
@@ -74,20 +76,22 @@ class PlantCatalogServiceTest {
     }
     private static final class RecordingFavoritePlantCommandPort implements FavoritePlantCommandPort {
 
-        private Long userId;
-        private String plantId;
+        private Long addUserId;
+        private String addPlantId;
+        private Long removeUserId;
+        private String removePlantId;
         private boolean removed;
 
         @Override
         public void addFavorite(Long userId, String plantId) {
-            this.userId = userId;
-            this.plantId = plantId;
+            this.addUserId = userId;
+            this.addPlantId = plantId;
         }
 
         @Override
         public void removeFavorite(Long userId, String plantId) {
-            this.userId = userId;
-            this.plantId = plantId;
+            this.removeUserId = userId;
+            this.removePlantId = plantId;
             this.removed = true;
         }
     }

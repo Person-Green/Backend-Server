@@ -5,10 +5,12 @@ import bssm.plantshuman.peopleandgreen.catalog.adapter.out.persistence.entity.Fa
 import bssm.plantshuman.peopleandgreen.catalog.adapter.out.persistence.repository.FavoritePlantRepository;
 import bssm.plantshuman.peopleandgreen.catalog.application.port.out.FavoritePlantCommandPort;
 import bssm.plantshuman.peopleandgreen.catalog.application.port.out.LoadPlantCatalogPagePort;
+import bssm.plantshuman.peopleandgreen.catalog.domain.exception.PlantNotFoundException;
 import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogItem;
 import bssm.plantshuman.peopleandgreen.domain.plant.Plant;
 import bssm.plantshuman.peopleandgreen.infrastructure.persistence.plant.PlantRepository;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,18 +53,18 @@ public class PlantCatalogPersistenceAdapter implements LoadPlantCatalogPagePort,
     @Override
     @Transactional
     public void addFavorite(Long userId, String plantId) {
-        if (favoritePlantRepository.existsByUser_IdAndPlant_PlantId(userId, plantId)) {
-            return;
-        }
-
         Plant plant = plantRepository.findById(plantId)
-                .orElseThrow(() -> new IllegalArgumentException("Plant not found"));
+                .orElseThrow(PlantNotFoundException::new);
 
-        favoritePlantRepository.save(new FavoritePlantEntity(
-                userPersistenceAdapter.getReference(userId),
-                plant,
-                Instant.now()
-        ));
+        try {
+            favoritePlantRepository.save(new FavoritePlantEntity(
+                    userPersistenceAdapter.getReference(userId),
+                    plant,
+                    Instant.now()
+            ));
+        } catch (DataIntegrityViolationException ignored) {
+            // Treat duplicate favorite requests as idempotent success.
+        }
     }
 
     @Override
