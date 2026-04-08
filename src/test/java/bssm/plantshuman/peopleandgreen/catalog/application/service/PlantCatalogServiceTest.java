@@ -72,7 +72,6 @@ class PlantCatalogServiceTest {
         assertThrows(IllegalArgumentException.class, () -> service.getCatalog(1L, null, 0));
         assertThrows(IllegalArgumentException.class, () -> service.getCatalog(1L, null, 51));
     }
-
     private static final class RecordingFavoritePlantCommandPort implements FavoritePlantCommandPort {
 
         private Long userId;

@@ -250,6 +250,61 @@ class PlantRecommendationEngineTest {
                 .toList());
     }
 
+    @Test
+    void returnsAllTriggeredCautionsInPriorityOrder() {
+        UserProfile userProfile = new UserProfile(
+                new UserEnvironment(
+                        SunlightLevel.MEDIUM,
+                        VentilationLevel.NORMAL,
+                        TemperatureBand.NORMAL,
+                        HumidityBand.NORMAL
+                ),
+                CareLevel.MEDIUM,
+                ExperienceLevel.INTERMEDIATE,
+                true,
+                PlacementType.LIVING_ROOM
+        );
+
+        PlantRecommendation recommendation = engine.recommend(
+                userProfile,
+                List.of(cautionPriorityPlant())
+        ).getFirst();
+
+        assertEquals(List.of(
+                "반려동물이 잎을 씹지 않도록 주의해 주세요.",
+                "저온에 오래 노출되지 않도록 관리해 주세요.",
+                "건조해지면 잎 끝이 마를 수 있어요."
+        ), recommendation.cautions());
+    }
+
+    @Test
+    void ordersReasonsByContributionWeight() {
+        UserProfile userProfile = new UserProfile(
+                new UserEnvironment(
+                        SunlightLevel.HIGH,
+                        VentilationLevel.NORMAL,
+                        TemperatureBand.NORMAL,
+                        HumidityBand.NORMAL
+                ),
+                CareLevel.HIGH,
+                ExperienceLevel.ADVANCED,
+                false,
+                PlacementType.DESK
+        );
+
+        PlantRecommendation recommendation = engine.recommend(
+                userProfile,
+                List.of(reasonPriorityPlant())
+        ).getFirst();
+
+        assertEquals(List.of(
+                "현재 햇빛 환경에 잘 맞아요.",
+                "현재 습도 조건에 잘 적응할 가능성이 높아요.",
+                "관리 난이도가 현재 관리 가능 수준에 맞아요.",
+                "책상 배치와 잘 맞는 크기와 관리 난이도를 갖고 있어요."
+        ), recommendation.reasons());
+    }
+
     private PlantCatalogItem highLightPlant() {
         return new PlantCatalogItem(
                 "PLT-HIGH",
@@ -495,6 +550,66 @@ class PlantRecommendationEngineTest {
                         Set.of(PlacementType.LIVING_ROOM)
                 ),
                 List.of(new EnvironmentFit(EnvironmentType.ENV_03_BRIGHT_INDIRECT, FitLevel.OPTIMAL))
+        );
+    }
+
+    private PlantCatalogItem cautionPriorityPlant() {
+        return new PlantCatalogItem(
+                "PLT-CAUTION-ORDER",
+                "테스트 식물",
+                "Priority Plant",
+                DifficultyLevel.NORMAL,
+                PetSafetyLevel.CAUTION,
+                AirPurificationLevel.MEDIUM,
+                SizeCategory.MEDIUM,
+                "1주 1회",
+                "26~30°C",
+                "60~80%",
+                "간접광",
+                "경고 우선순위 테스트용 식물",
+                "거실",
+                new PlantCondition(
+                        SunlightLevel.MEDIUM,
+                        VentilationLevel.NORMAL,
+                        26,
+                        30,
+                        60,
+                        80,
+                        7,
+                        10,
+                        Set.of(PlacementType.LIVING_ROOM)
+                ),
+                List.of(new EnvironmentFit(EnvironmentType.ENV_03_BRIGHT_INDIRECT, FitLevel.OPTIMAL))
+        );
+    }
+
+    private PlantCatalogItem reasonPriorityPlant() {
+        return new PlantCatalogItem(
+                "PLT-REASON-ORDER",
+                "이유 테스트 식물",
+                "Reason Plant",
+                DifficultyLevel.EASY,
+                PetSafetyLevel.SAFE,
+                AirPurificationLevel.MEDIUM,
+                SizeCategory.SMALL,
+                "1주 1회",
+                "18~24°C",
+                "41~59%",
+                "직사광",
+                "이유 우선순위 테스트용 식물",
+                "책상",
+                new PlantCondition(
+                        SunlightLevel.HIGH,
+                        VentilationLevel.NORMAL,
+                        18,
+                        24,
+                        41,
+                        59,
+                        7,
+                        10,
+                        Set.of(PlacementType.DESK)
+                ),
+                List.of(new EnvironmentFit(EnvironmentType.ENV_01_SUNNY, FitLevel.OPTIMAL))
         );
     }
 }

@@ -27,9 +27,9 @@ class RecommendationCatalogPersistenceIntegrationTest {
     private RecommendationPlantRepository recommendationPlantRepository;
 
     @Test
-    void loadsRecommendationCatalogFromDatabaseSeed() {
+    void doesNotAutoSeedRecommendationCatalog() {
         assertEquals(JpaPlantCatalogAdapter.class, AopUtils.getTargetClass(loadPlantCatalogPort));
-        assertEquals(30L, recommendationPlantRepository.count());
-        assertEquals(30, loadPlantCatalogPort.loadCatalog().size());
+        assertEquals(0L, recommendationPlantRepository.count());
+        assertEquals(0, loadPlantCatalogPort.loadCatalog().size());
     }
 }
