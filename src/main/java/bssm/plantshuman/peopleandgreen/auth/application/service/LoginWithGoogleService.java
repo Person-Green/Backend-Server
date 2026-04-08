@@ -4,9 +4,9 @@ import bssm.plantshuman.peopleandgreen.auth.application.config.GoogleOAuthProper
 import bssm.plantshuman.peopleandgreen.auth.application.port.in.LoginWithGoogleUseCase;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.ExchangeGoogleAuthCodePort;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.IssueJwtPort;
+import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenHashPort;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenStorePort;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.UserAccountPort;
-import bssm.plantshuman.peopleandgreen.auth.adapter.out.security.RefreshTokenHasher;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AppUser;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AuthTokens;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.GoogleUserInfo;
@@ -22,7 +22,7 @@ public class LoginWithGoogleService implements LoginWithGoogleUseCase {
     private final UserAccountPort userAccountPort;
     private final IssueJwtPort issueJwtPort;
     private final RefreshTokenStorePort refreshTokenStorePort;
-    private final RefreshTokenHasher refreshTokenHasher;
+    private final RefreshTokenHashPort refreshTokenHashPort;
 
     public LoginWithGoogleService(
             GoogleOAuthProperties properties,
@@ -30,14 +30,14 @@ public class LoginWithGoogleService implements LoginWithGoogleUseCase {
             UserAccountPort userAccountPort,
             IssueJwtPort issueJwtPort,
             RefreshTokenStorePort refreshTokenStorePort,
-            RefreshTokenHasher refreshTokenHasher
+            RefreshTokenHashPort refreshTokenHashPort
     ) {
         this.properties = properties;
         this.exchangeGoogleAuthCodePort = exchangeGoogleAuthCodePort;
         this.userAccountPort = userAccountPort;
         this.issueJwtPort = issueJwtPort;
         this.refreshTokenStorePort = refreshTokenStorePort;
-        this.refreshTokenHasher = refreshTokenHasher;
+        this.refreshTokenHashPort = refreshTokenHashPort;
     }
 
     @Override
@@ -56,7 +56,7 @@ public class LoginWithGoogleService implements LoginWithGoogleUseCase {
         String refreshToken = issueJwtPort.issueRefreshToken(user.id());
         refreshTokenStorePort.save(
                 user.id(),
-                refreshTokenHasher.hash(refreshToken),
+                refreshTokenHashPort.hash(refreshToken),
                 Instant.now().plusSeconds(issueJwtPort.getRefreshTokenValiditySeconds())
         );
         return new AuthTokens(accessToken, refreshToken, issueJwtPort.getAccessTokenValiditySeconds(), issueJwtPort.getRefreshTokenValiditySeconds(), user);
