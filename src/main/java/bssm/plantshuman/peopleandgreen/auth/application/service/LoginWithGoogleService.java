@@ -4,9 +4,9 @@ import bssm.plantshuman.peopleandgreen.auth.application.config.GoogleOAuthProper
 import bssm.plantshuman.peopleandgreen.auth.application.port.in.LoginWithGoogleUseCase;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.ExchangeGoogleAuthCodePort;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.IssueJwtPort;
+import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenHasherPort;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenStorePort;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.UserAccountPort;
-import bssm.plantshuman.peopleandgreen.auth.adapter.out.security.RefreshTokenHasher;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AppUser;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AuthTokens;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.GoogleUserInfo;
@@ -22,7 +22,7 @@ public class LoginWithGoogleService implements LoginWithGoogleUseCase {
     private final UserAccountPort userAccountPort;
     private final IssueJwtPort issueJwtPort;
     private final RefreshTokenStorePort refreshTokenStorePort;
-    private final RefreshTokenHasher refreshTokenHasher;
+    private final RefreshTokenHasherPort refreshTokenHasher;
 
     public LoginWithGoogleService(
             GoogleOAuthProperties properties,
@@ -30,7 +30,7 @@ public class LoginWithGoogleService implements LoginWithGoogleUseCase {
             UserAccountPort userAccountPort,
             IssueJwtPort issueJwtPort,
             RefreshTokenStorePort refreshTokenStorePort,
-            RefreshTokenHasher refreshTokenHasher
+            RefreshTokenHasherPort refreshTokenHasher
     ) {
         this.properties = properties;
         this.exchangeGoogleAuthCodePort = exchangeGoogleAuthCodePort;

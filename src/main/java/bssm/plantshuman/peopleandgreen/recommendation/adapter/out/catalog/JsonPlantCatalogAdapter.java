@@ -30,7 +30,7 @@ public class JsonPlantCatalogAdapter implements LoadPlantCatalogPort {
             this.catalog = List.copyOf(objectMapper.readValue(inputStream, new TypeReference<List<PlantCatalogItem>>() {
             }));
         } catch (IOException exception) {
-            throw new FailedLoadDataException();
+            throw new FailedLoadDataException(exception);
         }
     }
 

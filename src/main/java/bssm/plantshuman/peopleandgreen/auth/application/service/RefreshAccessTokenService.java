@@ -1,8 +1,8 @@
 package bssm.plantshuman.peopleandgreen.auth.application.service;
 
-import bssm.plantshuman.peopleandgreen.auth.adapter.out.security.RefreshTokenHasher;
 import bssm.plantshuman.peopleandgreen.auth.application.port.in.RefreshAccessTokenUseCase;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.IssueJwtPort;
+import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenHasherPort;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenStorePort;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.UserAccountPort;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AppUser;
@@ -23,13 +23,13 @@ public class RefreshAccessTokenService implements RefreshAccessTokenUseCase {
     private final IssueJwtPort issueJwtPort;
     private final UserAccountPort userAccountPort;
     private final RefreshTokenStorePort refreshTokenStorePort;
-    private final RefreshTokenHasher refreshTokenHasher;
+    private final RefreshTokenHasherPort refreshTokenHasher;
 
     public RefreshAccessTokenService(
             IssueJwtPort issueJwtPort,
             UserAccountPort userAccountPort,
             RefreshTokenStorePort refreshTokenStorePort,
-            RefreshTokenHasher refreshTokenHasher
+            RefreshTokenHasherPort refreshTokenHasher
     ) {
         this.issueJwtPort = issueJwtPort;
         this.userAccountPort = userAccountPort;

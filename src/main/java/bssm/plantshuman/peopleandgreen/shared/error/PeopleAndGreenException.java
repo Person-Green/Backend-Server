@@ -12,8 +12,18 @@ public abstract class PeopleAndGreenException extends RuntimeException {
         this.errorProperty = errorProperty;
     }
 
+    public PeopleAndGreenException(ErrorProperty errorProperty, Throwable cause, Object... args) {
+        super(String.format(errorProperty.getMessage(), args), cause);
+        this.errorProperty = errorProperty;
+    }
+
     public PeopleAndGreenException(ErrorProperty errorProperty) {
         super(errorProperty.getMessage());
+        this.errorProperty = errorProperty;
+    }
+
+    public PeopleAndGreenException(ErrorProperty errorProperty, Throwable cause) {
+        super(errorProperty.getMessage(), cause);
         this.errorProperty = errorProperty;
     }
 }

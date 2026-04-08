@@ -24,6 +24,10 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final String MISSING_REQUEST_VALUE_MESSAGE = "필수 요청 값이 누락되었습니다.";
+    private static final String UNSUPPORTED_MEDIA_TYPE_MESSAGE = "지원하지 않는 요청 형식입니다.";
+    private static final String UNREADABLE_HTTP_MESSAGE = "요청 본문 형식이 올바르지 않습니다.";
+
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoResourceFoundException(NoResourceFoundException e) {
         logHandledException(e);
@@ -67,7 +71,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(GlobalErrorProperty.BAD_REQUEST.getStatus())
-                .body(new ErrorResponse(GlobalErrorProperty.BAD_REQUEST, e.getMessage()));
+                .body(new ErrorResponse(GlobalErrorProperty.BAD_REQUEST, MISSING_REQUEST_VALUE_MESSAGE));
     }
 
     @ExceptionHandler(MissingServletRequestPartException.class)
@@ -102,7 +106,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.PAYLOAD_TOO_LARGE)
-                .body(new ErrorResponse(GlobalErrorProperty.BAD_REQUEST, e.getMessage()));
+                .body(new ErrorResponse(GlobalErrorProperty.TOO_LARGE_FILE));
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
@@ -111,7 +115,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                .body(new ErrorResponse(GlobalErrorProperty.BAD_REQUEST, e.getMessage()));
+                .body(new ErrorResponse(GlobalErrorProperty.BAD_REQUEST, UNSUPPORTED_MEDIA_TYPE_MESSAGE));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -120,7 +124,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(GlobalErrorProperty.BAD_REQUEST, e.getMessage()));
+                .body(new ErrorResponse(GlobalErrorProperty.BAD_REQUEST, UNREADABLE_HTTP_MESSAGE));
     }
 
     @ExceptionHandler(PeopleAndGreenException.class)

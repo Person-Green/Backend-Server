@@ -1,8 +1,8 @@
 package bssm.plantshuman.peopleandgreen.auth.application.service;
 
-import bssm.plantshuman.peopleandgreen.auth.adapter.out.security.RefreshTokenHasher;
 import bssm.plantshuman.peopleandgreen.auth.application.port.in.LogoutUseCase;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.IssueJwtPort;
+import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenHasherPort;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenStorePort;
 import org.springframework.stereotype.Service;
 
@@ -13,12 +13,12 @@ public class LogoutService implements LogoutUseCase {
 
     private final IssueJwtPort issueJwtPort;
     private final RefreshTokenStorePort refreshTokenStorePort;
-    private final RefreshTokenHasher refreshTokenHasher;
+    private final RefreshTokenHasherPort refreshTokenHasher;
 
     public LogoutService(
             IssueJwtPort issueJwtPort,
             RefreshTokenStorePort refreshTokenStorePort,
-            RefreshTokenHasher refreshTokenHasher
+            RefreshTokenHasherPort refreshTokenHasher
     ) {
         this.issueJwtPort = issueJwtPort;
         this.refreshTokenStorePort = refreshTokenStorePort;
