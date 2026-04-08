@@ -59,6 +59,6 @@ public class LoginWithGoogleService implements LoginWithGoogleUseCase {
                 refreshTokenHasher.hash(refreshToken),
                 Instant.now().plusSeconds(issueJwtPort.getRefreshTokenValiditySeconds())
         );
-        return new AuthTokens(accessToken, refreshToken, issueJwtPort.getAccessTokenValiditySeconds(), user);
+        return new AuthTokens(accessToken, refreshToken, issueJwtPort.getAccessTokenValiditySeconds(), issueJwtPort.getRefreshTokenValiditySeconds(), user);
     }
 }

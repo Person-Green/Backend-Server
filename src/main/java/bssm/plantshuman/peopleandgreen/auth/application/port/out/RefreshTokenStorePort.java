@@ -12,4 +12,6 @@ public interface RefreshTokenStorePort {
     Optional<StoredRefreshToken> findByTokenHash(String tokenHash);
 
     void revoke(Long tokenId, Instant revokedAt);
+
+    void revokeAllByUserId(Long userId, Instant revokedAt);
 }

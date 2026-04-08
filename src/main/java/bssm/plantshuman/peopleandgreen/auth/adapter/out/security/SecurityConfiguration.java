@@ -90,7 +90,6 @@ public class SecurityConfiguration {
                 .cors(Customizer.withDefaults());
 
         if (requireHttps) {
-            http.requiresChannel(channel -> channel.anyRequest().requiresSecure());
             http.headers(headers -> headers
                     .httpStrictTransportSecurity(hsts -> hsts
                             .includeSubDomains(true)

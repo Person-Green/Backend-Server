@@ -171,6 +171,10 @@ class AuthServiceTest {
         @Override
         public void revoke(Long tokenId, Instant revokedAt) {
         }
+
+        @Override
+        public void revokeAllByUserId(Long userId, Instant revokedAt) {
+        }
     }
 
     private static final class ReadyRefreshTokenStorePort implements RefreshTokenStorePort {
@@ -192,6 +196,10 @@ class AuthServiceTest {
 
         @Override
         public void revoke(Long tokenId, Instant revokedAt) {
+        }
+
+        @Override
+        public void revokeAllByUserId(Long userId, Instant revokedAt) {
         }
     }
 }

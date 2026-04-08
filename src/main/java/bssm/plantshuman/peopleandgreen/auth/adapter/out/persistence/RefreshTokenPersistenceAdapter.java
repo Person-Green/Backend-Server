@@ -46,6 +46,12 @@ public class RefreshTokenPersistenceAdapter implements RefreshTokenStorePort {
         refreshTokenRepository.findById(tokenId).ifPresent(token -> token.revoke(revokedAt));
     }
 
+    @Override
+    @Transactional
+    public void revokeAllByUserId(Long userId, Instant revokedAt) {
+        refreshTokenRepository.revokeAllActiveByUserId(userId, revokedAt);
+    }
+
     private StoredRefreshToken toDomain(RefreshTokenEntity entity) {
         return new StoredRefreshToken(
                 entity.getId(),
