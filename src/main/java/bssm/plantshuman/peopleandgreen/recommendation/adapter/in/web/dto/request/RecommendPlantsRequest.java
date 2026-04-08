@@ -38,7 +38,7 @@ public record RecommendPlantsRequest(
                 humidity,
                 careLevel,
                 experienceLevel,
-                hasPet.booleanValue(),
+                hasPet,
                 placement
         );
     }
