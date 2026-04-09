@@ -66,7 +66,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
-          envs: IMAGE,CR_TOKEN,CR_USER,DB_ROOT_PASSWORD,DB_DATABASE,DB_USERNAME,DB_PASSWORD
+          envs: IMAGE,CR_TOKEN,CR_USER,DB_ROOT_PASSWORD,DB_DATABASE,DB_USERNAME,DB_PASSWORD,AUTH_JWT_SECRET,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,GOOGLE_REDIRECT_URI
           script: |
             cat > ~/app/.env << EOF
             MYSQL_ROOT_PASSWORD=$DB_ROOT_PASSWORD
@@ -78,6 +78,10 @@ jobs:
             SPRING_DATASOURCE_USERNAME=$DB_USERNAME
             SPRING_DATASOURCE_PASSWORD=$DB_PASSWORD
             SPRING_JPA_HIBERNATE_DDL_AUTO=update
+            AUTH_JWT_SECRET=$AUTH_JWT_SECRET
+            GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+            GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
+            GOOGLE_REDIRECT_URI=$GOOGLE_REDIRECT_URI
             EOF
             chmod 600 ~/app/.env
             echo "$CR_TOKEN" | docker login ghcr.io -u "$CR_USER" --password-stdin
@@ -92,6 +96,10 @@ jobs:
           DB_DATABASE: ${{ secrets.DB_DATABASE }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          AUTH_JWT_SECRET: ${{ secrets.AUTH_JWT_SECRET }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REDIRECT_URI: ${{ secrets.GOOGLE_REDIRECT_URI }}
 
       - name: sshpass 설치
         run: sudo apt-get update && sudo apt-get install -y sshpass

@@ -7,4 +7,8 @@ public record PlantCatalogCursorPage(
         String nextCursor,
         boolean hasNext
 ) {
+
+    public PlantCatalogCursorPage {
+        plants = List.copyOf(plants);
+    }
 }

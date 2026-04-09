@@ -2,6 +2,7 @@ package bssm.plantshuman.peopleandgreen.auth.adapter.in.web;
 
 import bssm.plantshuman.peopleandgreen.auth.adapter.in.web.dto.request.GoogleLoginRequest;
 import bssm.plantshuman.peopleandgreen.auth.adapter.in.web.dto.response.AuthTokenResponse;
+import bssm.plantshuman.peopleandgreen.auth.application.config.SecurityProperties;
 import bssm.plantshuman.peopleandgreen.auth.application.port.in.LoginWithGoogleUseCase;
 import bssm.plantshuman.peopleandgreen.auth.application.port.in.LogoutUseCase;
 import bssm.plantshuman.peopleandgreen.auth.application.port.in.PrepareGoogleAuthorizationUseCase;
@@ -9,7 +10,7 @@ import bssm.plantshuman.peopleandgreen.auth.application.port.in.RefreshAccessTok
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AuthTokens;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -26,6 +27,7 @@ import java.time.Duration;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private static final String REFRESH_TOKEN_COOKIE = "refresh_token";
@@ -34,21 +36,7 @@ public class AuthController {
     private final LoginWithGoogleUseCase loginWithGoogleUseCase;
     private final RefreshAccessTokenUseCase refreshAccessTokenUseCase;
     private final LogoutUseCase logoutUseCase;
-
-    @Value("${security.require-https:true}")
-    private boolean requireHttps;
-
-    public AuthController(
-            PrepareGoogleAuthorizationUseCase prepareGoogleAuthorizationUseCase,
-            LoginWithGoogleUseCase loginWithGoogleUseCase,
-            RefreshAccessTokenUseCase refreshAccessTokenUseCase,
-            LogoutUseCase logoutUseCase
-    ) {
-        this.prepareGoogleAuthorizationUseCase = prepareGoogleAuthorizationUseCase;
-        this.loginWithGoogleUseCase = loginWithGoogleUseCase;
-        this.refreshAccessTokenUseCase = refreshAccessTokenUseCase;
-        this.logoutUseCase = logoutUseCase;
-    }
+    private final SecurityProperties securityProperties;
 
     @GetMapping("/google/authorize")
     public ResponseEntity<AuthTokenResponse.GoogleAuthorizationResponse> prepareGoogleAuthorization(
@@ -107,7 +95,7 @@ public class AuthController {
     private ResponseCookie buildRefreshCookie(String value, long maxAgeSeconds) {
         return ResponseCookie.from(REFRESH_TOKEN_COOKIE, value)
                 .httpOnly(true)
-                .secure(requireHttps)
+                .secure(securityProperties.isRequireHttps())
                 .sameSite("Strict")
                 .path("/auth")
                 .maxAge(Duration.ofSeconds(maxAgeSeconds))

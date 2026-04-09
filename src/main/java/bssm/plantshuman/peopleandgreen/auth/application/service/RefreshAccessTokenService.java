@@ -1,41 +1,29 @@
 package bssm.plantshuman.peopleandgreen.auth.application.service;
 
-import bssm.plantshuman.peopleandgreen.auth.adapter.out.security.RefreshTokenHasher;
 import bssm.plantshuman.peopleandgreen.auth.application.port.in.RefreshAccessTokenUseCase;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.IssueJwtPort;
+import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenHashPort;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenStorePort;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.UserAccountPort;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AppUser;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AuthTokens;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.StoredRefreshToken;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class RefreshAccessTokenService implements RefreshAccessTokenUseCase {
-
-    private static final Logger log = LoggerFactory.getLogger(RefreshAccessTokenService.class);
 
     private final IssueJwtPort issueJwtPort;
     private final UserAccountPort userAccountPort;
     private final RefreshTokenStorePort refreshTokenStorePort;
-    private final RefreshTokenHasher refreshTokenHasher;
-
-    public RefreshAccessTokenService(
-            IssueJwtPort issueJwtPort,
-            UserAccountPort userAccountPort,
-            RefreshTokenStorePort refreshTokenStorePort,
-            RefreshTokenHasher refreshTokenHasher
-    ) {
-        this.issueJwtPort = issueJwtPort;
-        this.userAccountPort = userAccountPort;
-        this.refreshTokenStorePort = refreshTokenStorePort;
-        this.refreshTokenHasher = refreshTokenHasher;
-    }
+    private final RefreshTokenHashPort refreshTokenHashPort;
 
     @Override
     @Transactional
@@ -45,7 +33,7 @@ public class RefreshAccessTokenService implements RefreshAccessTokenUseCase {
         }
 
         Long userId = issueJwtPort.parseUserId(refreshToken);
-        StoredRefreshToken storedToken = refreshTokenStorePort.findByTokenHash(refreshTokenHasher.hash(refreshToken))
+        StoredRefreshToken storedToken = refreshTokenStorePort.findByTokenHash(refreshTokenHashPort.hash(refreshToken))
                 .orElseThrow(() -> new IllegalArgumentException("Refresh token not found"));
 
         // 이미 revoked된 토큰으로 갱신 시도 → 탈취 의심 → 해당 사용자의 모든 세션 무효화
@@ -69,7 +57,7 @@ public class RefreshAccessTokenService implements RefreshAccessTokenUseCase {
         String newRefreshToken = issueJwtPort.issueRefreshToken(userId);
         refreshTokenStorePort.save(
                 userId,
-                refreshTokenHasher.hash(newRefreshToken),
+                refreshTokenHashPort.hash(newRefreshToken),
                 Instant.now().plusSeconds(issueJwtPort.getRefreshTokenValiditySeconds())
         );
 

@@ -1,29 +1,21 @@
 package bssm.plantshuman.peopleandgreen.auth.application.service;
 
-import bssm.plantshuman.peopleandgreen.auth.adapter.out.security.RefreshTokenHasher;
 import bssm.plantshuman.peopleandgreen.auth.application.port.in.LogoutUseCase;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.IssueJwtPort;
+import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenHashPort;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenStorePort;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
 @Service
+@RequiredArgsConstructor
 public class LogoutService implements LogoutUseCase {
 
     private final IssueJwtPort issueJwtPort;
     private final RefreshTokenStorePort refreshTokenStorePort;
-    private final RefreshTokenHasher refreshTokenHasher;
-
-    public LogoutService(
-            IssueJwtPort issueJwtPort,
-            RefreshTokenStorePort refreshTokenStorePort,
-            RefreshTokenHasher refreshTokenHasher
-    ) {
-        this.issueJwtPort = issueJwtPort;
-        this.refreshTokenStorePort = refreshTokenStorePort;
-        this.refreshTokenHasher = refreshTokenHasher;
-    }
+    private final RefreshTokenHashPort refreshTokenHashPort;
 
     @Override
     public void logout(String refreshToken) {
@@ -31,7 +23,7 @@ public class LogoutService implements LogoutUseCase {
             if (!issueJwtPort.isRefreshToken(refreshToken)) {
                 return;
             }
-            String hash = refreshTokenHasher.hash(refreshToken);
+            String hash = refreshTokenHashPort.hash(refreshToken);
             refreshTokenStorePort.findByTokenHash(hash)
                     .filter(t -> !t.isRevoked())
                     .ifPresent(t -> refreshTokenStorePort.revoke(t.id(), Instant.now()));

@@ -1,6 +1,7 @@
 package bssm.plantshuman.peopleandgreen.auth.adapter.out.security;
 
-import org.springframework.beans.factory.annotation.Value;
+import bssm.plantshuman.peopleandgreen.auth.application.config.SecurityProperties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -14,10 +15,10 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfiguration {
 
     private static final String[] PUBLIC_PATHS = {
@@ -32,16 +33,7 @@ public class SecurityConfiguration {
     };
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    @Value("${security.require-https:true}")
-    private boolean requireHttps;
-
-    @Value("${security.cors.allowed-origins:http://localhost:3000}")
-    private String allowedOrigins;
-
-    public SecurityConfiguration(JwtAuthenticationFilter jwtAuthenticationFilter) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    }
+    private final SecurityProperties securityProperties;
 
     /**
      * 로드밸런서/리버스프록시 뒤에서 X-Forwarded-Proto 헤더를 신뢰하여
@@ -59,7 +51,7 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+        config.setAllowedOrigins(securityProperties.getCors().getAllowedOrigins());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         config.setAllowCredentials(true);
@@ -89,7 +81,7 @@ public class SecurityConfiguration {
                 }))
                 .cors(Customizer.withDefaults());
 
-        if (requireHttps) {
+        if (securityProperties.isRequireHttps()) {
             http.headers(headers -> headers
                     .httpStrictTransportSecurity(hsts -> hsts
                             .includeSubDomains(true)

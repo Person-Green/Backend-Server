@@ -2,6 +2,7 @@ package bssm.plantshuman.peopleandgreen.auth.adapter.in.web;
 
 import bssm.plantshuman.peopleandgreen.auth.adapter.in.web.dto.request.GoogleLoginRequest;
 import bssm.plantshuman.peopleandgreen.auth.adapter.in.web.dto.response.AuthTokenResponse;
+import bssm.plantshuman.peopleandgreen.auth.application.config.SecurityProperties;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AppUser;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AuthTokens;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.OAuthProvider;
@@ -9,6 +10,8 @@ import bssm.plantshuman.peopleandgreen.auth.domain.model.PreparedGoogleAuthoriza
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -90,8 +93,18 @@ class AuthControllerTest {
                         "https://accounts.google.com/o/oauth2/v2/auth?state=STATE_TOKEN", "STATE_TOKEN"),
                 (authorizationCode, state, redirectUri) -> tokens(),
                 refreshToken -> tokens(),
-                refreshToken -> {}
+                refreshToken -> {},
+                securityProperties()
         );
+    }
+
+    private static SecurityProperties securityProperties() {
+        SecurityProperties properties = new SecurityProperties();
+        SecurityProperties.Cors cors = new SecurityProperties.Cors();
+        cors.setAllowedOrigins(List.of("http://localhost:3000"));
+        properties.setRequireHttps(true);
+        properties.setCors(cors);
+        return properties;
     }
 
     private static AuthTokens tokens() {

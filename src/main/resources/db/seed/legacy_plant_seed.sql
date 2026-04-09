@@ -1,7 +1,9 @@
 -- Excel 원본(사람과초록_식물데이터_v1.xlsx)을 기존 MVP 스키마(plant, plant_environment, plant_environment_mapping)에 맞춘 적재 스크립트
+SET NAMES utf8mb4;
 START TRANSACTION;
 
 DELETE FROM plant_environment_mapping;
+DELETE FROM favorite_plant;
 DELETE FROM plant;
 DELETE FROM plant_environment;
 
