@@ -8,34 +8,22 @@ import bssm.plantshuman.peopleandgreen.auth.application.port.out.UserAccountPort
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AppUser;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AuthTokens;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.StoredRefreshToken;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class RefreshAccessTokenService implements RefreshAccessTokenUseCase {
-
-    private static final Logger log = LoggerFactory.getLogger(RefreshAccessTokenService.class);
 
     private final IssueJwtPort issueJwtPort;
     private final UserAccountPort userAccountPort;
     private final RefreshTokenStorePort refreshTokenStorePort;
     private final RefreshTokenHashPort refreshTokenHashPort;
-
-    public RefreshAccessTokenService(
-            IssueJwtPort issueJwtPort,
-            UserAccountPort userAccountPort,
-            RefreshTokenStorePort refreshTokenStorePort,
-            RefreshTokenHashPort refreshTokenHashPort
-    ) {
-        this.issueJwtPort = issueJwtPort;
-        this.userAccountPort = userAccountPort;
-        this.refreshTokenStorePort = refreshTokenStorePort;
-        this.refreshTokenHashPort = refreshTokenHashPort;
-    }
 
     @Override
     @Transactional

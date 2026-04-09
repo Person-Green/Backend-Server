@@ -10,11 +10,13 @@ import bssm.plantshuman.peopleandgreen.auth.application.port.out.UserAccountPort
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AppUser;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AuthTokens;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.GoogleUserInfo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
 @Service
+@RequiredArgsConstructor
 public class LoginWithGoogleService implements LoginWithGoogleUseCase {
 
     private final GoogleOAuthProperties properties;
@@ -23,22 +25,6 @@ public class LoginWithGoogleService implements LoginWithGoogleUseCase {
     private final IssueJwtPort issueJwtPort;
     private final RefreshTokenStorePort refreshTokenStorePort;
     private final RefreshTokenHashPort refreshTokenHashPort;
-
-    public LoginWithGoogleService(
-            GoogleOAuthProperties properties,
-            ExchangeGoogleAuthCodePort exchangeGoogleAuthCodePort,
-            UserAccountPort userAccountPort,
-            IssueJwtPort issueJwtPort,
-            RefreshTokenStorePort refreshTokenStorePort,
-            RefreshTokenHashPort refreshTokenHashPort
-    ) {
-        this.properties = properties;
-        this.exchangeGoogleAuthCodePort = exchangeGoogleAuthCodePort;
-        this.userAccountPort = userAccountPort;
-        this.issueJwtPort = issueJwtPort;
-        this.refreshTokenStorePort = refreshTokenStorePort;
-        this.refreshTokenHashPort = refreshTokenHashPort;
-    }
 
     @Override
     public AuthTokens login(String authorizationCode, String state, String redirectUri) {

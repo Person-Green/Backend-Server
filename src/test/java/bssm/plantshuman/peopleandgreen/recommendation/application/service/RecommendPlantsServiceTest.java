@@ -29,8 +29,36 @@ class RecommendPlantsServiceTest {
 
     @Test
     void limitsRecommendationsUsingConfiguredMax() {
-        RecommendationPolicyProperties properties = new RecommendationPolicyProperties();
-        properties.setMaxRecommendations(1);
+        RecommendationPolicyProperties properties = new RecommendationPolicyProperties(
+                30,
+                15,
+                10,
+                5,
+                20,
+                3,
+                7,
+                15,
+                10,
+                20,
+                14,
+                7,
+                5,
+                3,
+                1,
+                7,
+                14,
+                5,
+                4,
+                3,
+                7,
+                14,
+                5,
+                4,
+                3,
+                18,
+                100,
+                1
+        );
 
         RecommendPlantsService service = new RecommendPlantsService(
                 () -> List.of(highScorePlant(), lowerScorePlant()),

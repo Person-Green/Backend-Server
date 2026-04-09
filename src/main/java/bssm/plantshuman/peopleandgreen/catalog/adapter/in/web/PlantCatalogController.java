@@ -1,11 +1,11 @@
 package bssm.plantshuman.peopleandgreen.catalog.adapter.in.web;
 
 import bssm.plantshuman.peopleandgreen.auth.adapter.out.security.AuthenticatedUser;
-import bssm.plantshuman.peopleandgreen.catalog.application.port.in.AddFavoritePlantUseCase;
+import bssm.plantshuman.peopleandgreen.catalog.application.port.in.FavoritePlantUseCase;
 import bssm.plantshuman.peopleandgreen.catalog.application.port.in.GetPlantCatalogUseCase;
-import bssm.plantshuman.peopleandgreen.catalog.application.port.in.RemoveFavoritePlantUseCase;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -20,21 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/plants")
 @Validated
+@RequiredArgsConstructor
 public class PlantCatalogController {
 
     private final GetPlantCatalogUseCase getPlantCatalogUseCase;
-    private final AddFavoritePlantUseCase addFavoritePlantUseCase;
-    private final RemoveFavoritePlantUseCase removeFavoritePlantUseCase;
-
-    public PlantCatalogController(
-            GetPlantCatalogUseCase getPlantCatalogUseCase,
-            AddFavoritePlantUseCase addFavoritePlantUseCase,
-            RemoveFavoritePlantUseCase removeFavoritePlantUseCase
-    ) {
-        this.getPlantCatalogUseCase = getPlantCatalogUseCase;
-        this.addFavoritePlantUseCase = addFavoritePlantUseCase;
-        this.removeFavoritePlantUseCase = removeFavoritePlantUseCase;
-    }
+    private final FavoritePlantUseCase favoritePlantUseCase;
 
     @GetMapping
     public ResponseEntity<PlantCatalogPageResponse> getPlants(
@@ -52,7 +42,7 @@ public class PlantCatalogController {
             @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
             @PathVariable String plantId
     ) {
-        addFavoritePlantUseCase.add(authenticatedUser.userId(), plantId);
+        favoritePlantUseCase.add(authenticatedUser.userId(), plantId);
         return ResponseEntity.noContent().build();
     }
 
@@ -61,7 +51,7 @@ public class PlantCatalogController {
             @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
             @PathVariable String plantId
     ) {
-        removeFavoritePlantUseCase.remove(authenticatedUser.userId(), plantId);
+        favoritePlantUseCase.remove(authenticatedUser.userId(), plantId);
         return ResponseEntity.noContent().build();
     }
 }

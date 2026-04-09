@@ -4,6 +4,7 @@ import bssm.plantshuman.peopleandgreen.auth.application.config.GoogleOAuthProper
 import bssm.plantshuman.peopleandgreen.auth.application.port.in.PrepareGoogleAuthorizationUseCase;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.IssueJwtPort;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.PreparedGoogleAuthorization;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
@@ -11,15 +12,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.StringJoiner;
 
 @Service
+@RequiredArgsConstructor
 public class PrepareGoogleAuthorizationService implements PrepareGoogleAuthorizationUseCase {
 
     private final GoogleOAuthProperties properties;
     private final IssueJwtPort issueJwtPort;
-
-    public PrepareGoogleAuthorizationService(GoogleOAuthProperties properties, IssueJwtPort issueJwtPort) {
-        this.properties = properties;
-        this.issueJwtPort = issueJwtPort;
-    }
 
     @Override
     public PreparedGoogleAuthorization prepare(String redirectUri) {

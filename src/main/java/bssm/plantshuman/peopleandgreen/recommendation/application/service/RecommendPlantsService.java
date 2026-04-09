@@ -17,10 +17,7 @@ public class RecommendPlantsService implements RecommendPlantsUseCase {
     private final RecommendationPolicyProperties recommendationPolicyProperties;
     private final PlantRecommendationEngine plantRecommendationEngine;
 
-    public RecommendPlantsService(
-            LoadPlantCatalogPort loadPlantCatalogPort,
-            RecommendationPolicyProperties recommendationPolicyProperties
-    ) {
+    public RecommendPlantsService(LoadPlantCatalogPort loadPlantCatalogPort, RecommendationPolicyProperties recommendationPolicyProperties) {
         this.loadPlantCatalogPort = loadPlantCatalogPort;
         this.recommendationPolicyProperties = recommendationPolicyProperties;
         RecommendationPolicy recommendationPolicy = recommendationPolicyProperties.toPolicy();
@@ -42,7 +39,7 @@ public class RecommendPlantsService implements RecommendPlantsUseCase {
                 recommendationResult.representativeEnvironment(),
                 recommendationResult.secondaryEnvironmentTags(),
                 recommendationResult.plants().stream()
-                        .limit(recommendationPolicyProperties.getMaxRecommendations())
+                        .limit(recommendationPolicyProperties.maxRecommendations())
                         .toList()
         );
     }

@@ -4,26 +4,18 @@ import bssm.plantshuman.peopleandgreen.auth.application.port.in.LogoutUseCase;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.IssueJwtPort;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenHashPort;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenStorePort;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
 @Service
+@RequiredArgsConstructor
 public class LogoutService implements LogoutUseCase {
 
     private final IssueJwtPort issueJwtPort;
     private final RefreshTokenStorePort refreshTokenStorePort;
     private final RefreshTokenHashPort refreshTokenHashPort;
-
-    public LogoutService(
-            IssueJwtPort issueJwtPort,
-            RefreshTokenStorePort refreshTokenStorePort,
-            RefreshTokenHashPort refreshTokenHashPort
-    ) {
-        this.issueJwtPort = issueJwtPort;
-        this.refreshTokenStorePort = refreshTokenStorePort;
-        this.refreshTokenHashPort = refreshTokenHashPort;
-    }
 
     @Override
     public void logout(String refreshToken) {

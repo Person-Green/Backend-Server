@@ -1,9 +1,8 @@
 package bssm.plantshuman.peopleandgreen.catalog.adapter.in.web;
 
 import bssm.plantshuman.peopleandgreen.auth.adapter.out.security.AuthenticatedUser;
-import bssm.plantshuman.peopleandgreen.catalog.application.port.in.AddFavoritePlantUseCase;
+import bssm.plantshuman.peopleandgreen.catalog.application.port.in.FavoritePlantUseCase;
 import bssm.plantshuman.peopleandgreen.catalog.application.port.in.GetPlantCatalogUseCase;
-import bssm.plantshuman.peopleandgreen.catalog.application.port.in.RemoveFavoritePlantUseCase;
 import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogCursorPage;
 import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogView;
 import bssm.plantshuman.peopleandgreen.domain.plant.AirPurification;
@@ -25,8 +24,7 @@ class PlantCatalogControllerTest {
                         "PLT-001",
                         false
                 ),
-                (userId, plantId) -> { },
-                (userId, plantId) -> { }
+                new RecordingFavoriteUseCase()
         );
 
         ResponseEntity<PlantCatalogPageResponse> response = controller.getPlants(new AuthenticatedUser(1L), null, 20);
@@ -41,8 +39,7 @@ class PlantCatalogControllerTest {
         RecordingFavoriteUseCase addFavoriteUseCase = new RecordingFavoriteUseCase();
         PlantCatalogController controller = new PlantCatalogController(
                 (userId, cursor, size) -> new PlantCatalogCursorPage(List.of(), null, false),
-                addFavoriteUseCase,
-                (userId, plantId) -> { }
+                addFavoriteUseCase
         );
 
         ResponseEntity<Void> response = controller.addFavorite(new AuthenticatedUser(1L), "PLT-001");
@@ -52,7 +49,7 @@ class PlantCatalogControllerTest {
         assertEquals("PLT-001", addFavoriteUseCase.plantId);
     }
 
-    private static final class RecordingFavoriteUseCase implements AddFavoritePlantUseCase {
+    private static final class RecordingFavoriteUseCase implements FavoritePlantUseCase {
 
         private Long userId;
         private String plantId;
@@ -61,6 +58,10 @@ class PlantCatalogControllerTest {
         public void add(Long userId, String plantId) {
             this.userId = userId;
             this.plantId = plantId;
+        }
+
+        @Override
+        public void remove(Long userId, String plantId) {
         }
     }
 }

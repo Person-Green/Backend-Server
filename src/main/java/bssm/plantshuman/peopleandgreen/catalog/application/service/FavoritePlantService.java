@@ -1,18 +1,15 @@
 package bssm.plantshuman.peopleandgreen.catalog.application.service;
 
-import bssm.plantshuman.peopleandgreen.catalog.application.port.in.AddFavoritePlantUseCase;
-import bssm.plantshuman.peopleandgreen.catalog.application.port.in.RemoveFavoritePlantUseCase;
+import bssm.plantshuman.peopleandgreen.catalog.application.port.in.FavoritePlantUseCase;
 import bssm.plantshuman.peopleandgreen.catalog.application.port.out.FavoritePlantCommandPort;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FavoritePlantService implements AddFavoritePlantUseCase, RemoveFavoritePlantUseCase {
+@RequiredArgsConstructor
+public class FavoritePlantService implements FavoritePlantUseCase {
 
     private final FavoritePlantCommandPort favoritePlantCommandPort;
-
-    public FavoritePlantService(FavoritePlantCommandPort favoritePlantCommandPort) {
-        this.favoritePlantCommandPort = favoritePlantCommandPort;
-    }
 
     @Override
     public void add(Long userId, String plantId) {
