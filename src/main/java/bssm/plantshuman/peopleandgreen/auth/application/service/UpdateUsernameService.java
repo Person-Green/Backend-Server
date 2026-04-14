@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UpdateUsernameService implements UpdateUsernameUseCase {
 
-    private static final int MAX_USERNAME_LENGTH = 30;
-
     private final UserAccountPort userAccountPort;
 
     @Override
@@ -28,9 +26,6 @@ public class UpdateUsernameService implements UpdateUsernameUseCase {
         String normalized = username.trim();
         if (normalized.isEmpty()) {
             throw new IllegalArgumentException("Username must not be blank");
-        }
-        if (normalized.length() > MAX_USERNAME_LENGTH) {
-            throw new IllegalArgumentException("Username must be at most 30 characters");
         }
         return normalized;
     }

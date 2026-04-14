@@ -165,13 +165,6 @@ class AuthServiceTest {
         assertThrows(IllegalArgumentException.class, () -> service.updateUsername(1L, "   "));
     }
 
-    @Test
-    void rejectsTooLongUsername() {
-        UpdateUsernameService service = new UpdateUsernameService(new RecordingUserAccountPort());
-
-        assertThrows(IllegalArgumentException.class, () -> service.updateUsername(1L, "1234567890123456789012345678901"));
-    }
-
     private static final class StubIssueJwtPort implements IssueJwtPort {
 
         @Override
