@@ -2,6 +2,7 @@ package bssm.plantshuman.peopleandgreen.catalog.adapter.in.web;
 
 import bssm.plantshuman.peopleandgreen.auth.adapter.out.security.AuthenticatedUser;
 import bssm.plantshuman.peopleandgreen.catalog.application.port.in.FavoritePlantUseCase;
+import bssm.plantshuman.peopleandgreen.catalog.application.port.in.GetFavoritePlantsUseCase;
 import bssm.plantshuman.peopleandgreen.catalog.application.port.in.GetPlantCatalogUseCase;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PlantCatalogController {
 
     private final GetPlantCatalogUseCase getPlantCatalogUseCase;
+    private final GetFavoritePlantsUseCase getFavoritePlantsUseCase;
     private final FavoritePlantUseCase favoritePlantUseCase;
 
     @GetMapping
@@ -34,6 +36,15 @@ public class PlantCatalogController {
     ) {
         return ResponseEntity.ok(PlantCatalogPageResponse.from(
                 getPlantCatalogUseCase.getCatalog(authenticatedUser.userId(), cursor, size)
+        ));
+    }
+
+    @GetMapping("/favorites")
+    public ResponseEntity<FavoritePlantsListResponse> getFavoritePlants(
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
+    ) {
+        return ResponseEntity.ok(FavoritePlantsListResponse.from(
+                getFavoritePlantsUseCase.getFavoritePlants(authenticatedUser.userId())
         ));
     }
 
