@@ -57,9 +57,12 @@ public class AppUserEntity {
         this.profileImageUrl = profileImageUrl;
     }
 
-    public void updateProfile(String email, String name, String profileImageUrl) {
+    public void updateGoogleProfile(String email, String profileImageUrl) {
         this.email = email;
-        this.name = name;
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public void updateUsername(String name) {
+        this.name = name;
     }
 }

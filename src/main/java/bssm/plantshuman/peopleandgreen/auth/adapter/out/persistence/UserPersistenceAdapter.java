@@ -25,7 +25,7 @@ public class UserPersistenceAdapter implements UserAccountPort {
     public AppUser upsertGoogleUser(GoogleUserInfo userInfo) {
         AppUserEntity entity = appUserRepository.findByOauthProviderAndOauthProviderUserId(OAuthProvider.GOOGLE, userInfo.providerUserId())
                 .map(existing -> {
-                    existing.updateProfile(userInfo.email(), userInfo.name(), userInfo.profileImageUrl());
+                    existing.updateGoogleProfile(userInfo.email(), userInfo.profileImageUrl());
                     return existing;
                 })
                 .orElseGet(() -> new AppUserEntity(
@@ -42,6 +42,15 @@ public class UserPersistenceAdapter implements UserAccountPort {
     @Override
     public Optional<AppUser> findById(Long userId) {
         return appUserRepository.findById(userId).map(this::toDomain);
+    }
+
+    @Override
+    @Transactional
+    public AppUser updateUsername(Long userId, String username) {
+        AppUserEntity entity = appUserRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        entity.updateUsername(username);
+        return toDomain(entity);
     }
 
     public AppUserEntity getReference(Long userId) {
