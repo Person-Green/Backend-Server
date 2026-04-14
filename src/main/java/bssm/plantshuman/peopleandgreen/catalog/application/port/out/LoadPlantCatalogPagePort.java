@@ -10,4 +10,5 @@ public interface LoadPlantCatalogPagePort {
     List<PlantCatalogItem> loadPage(String cursor, int sizePlusOne);
 
     Set<String> loadFavoritePlantIds(Long userId, Set<String> plantIds);
+
 }
