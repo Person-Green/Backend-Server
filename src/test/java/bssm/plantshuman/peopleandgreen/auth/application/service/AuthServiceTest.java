@@ -69,6 +69,27 @@ class AuthServiceTest {
     }
 
     @Test
+    void keepsExistingUsernameWhenGoogleUserLogsInAgain() {
+        RecordingUserAccountPort userAccountPort = new RecordingUserAccountPort(
+                new AppUser(1L, OAuthProvider.GOOGLE, "google-123", "before@example.com", "chosenName", "https://old-image")
+        );
+        LoginWithGoogleService service = new LoginWithGoogleService(
+                GOOGLE_PROPERTIES,
+                (code, redirectUri) -> new GoogleUserInfo("google-123", "after@example.com", "googleName", "https://new-image"),
+                userAccountPort,
+                new StubIssueJwtPort(),
+                new RecordingRefreshTokenStorePort(),
+                HASH_PORT
+        );
+
+        var tokens = service.login("AUTH_CODE", "STATE_TOKEN", "http://localhost:3000/auth/google/callback");
+
+        assertEquals("chosenName", tokens.user().name());
+        assertEquals("after@example.com", tokens.user().email());
+        assertEquals("https://new-image", tokens.user().profileImageUrl());
+    }
+
+    @Test
     void rejectsLoginWhenRedirectUriIsNotAllowed() {
         LoginWithGoogleService service = new LoginWithGoogleService(
                 GOOGLE_PROPERTIES,
@@ -126,6 +147,22 @@ class AuthServiceTest {
         service.logout("ACCESS_TOKEN");
 
         assertEquals(null, refreshTokenStorePort.revokedTokenId);
+    }
+
+    @Test
+    void updatesUsernameForExistingUser() {
+        UpdateUsernameService service = new UpdateUsernameService(new RecordingUserAccountPort());
+
+        AppUser user = service.updateUsername(1L, "  UserName  ");
+
+        assertEquals("UserName", user.name());
+    }
+
+    @Test
+    void rejectsBlankUsername() {
+        UpdateUsernameService service = new UpdateUsernameService(new RecordingUserAccountPort());
+
+        assertThrows(IllegalArgumentException.class, () -> service.updateUsername(1L, "   "));
     }
 
     private static final class StubIssueJwtPort implements IssueJwtPort {
@@ -225,6 +262,55 @@ class AuthServiceTest {
         @Override
         public Optional<AppUser> findById(Long userId) {
             return Optional.of(new AppUser(userId, OAuthProvider.GOOGLE, "google-123", "jjm@example.com", "jjm", "https://image"));
+        }
+
+        @Override
+        public AppUser updateUsername(Long userId, String username) {
+            return new AppUser(userId, OAuthProvider.GOOGLE, "google-123", "jjm@example.com", username, "https://image");
+        }
+    }
+
+    private static final class RecordingUserAccountPort implements UserAccountPort {
+
+        private AppUser existingUser;
+
+        private RecordingUserAccountPort() {
+            this(new AppUser(1L, OAuthProvider.GOOGLE, "google-123", "jjm@example.com", "jjm", "https://image"));
+        }
+
+        private RecordingUserAccountPort(AppUser existingUser) {
+            this.existingUser = existingUser;
+        }
+
+        @Override
+        public AppUser upsertGoogleUser(GoogleUserInfo userInfo) {
+            if (existingUser != null
+                    && existingUser.oauthProvider() == OAuthProvider.GOOGLE
+                    && existingUser.oauthProviderUserId().equals(userInfo.providerUserId())) {
+                existingUser = new AppUser(
+                        existingUser.id(),
+                        existingUser.oauthProvider(),
+                        existingUser.oauthProviderUserId(),
+                        userInfo.email(),
+                        existingUser.name(),
+                        userInfo.profileImageUrl()
+                );
+                return existingUser;
+            }
+
+            existingUser = new AppUser(1L, OAuthProvider.GOOGLE, userInfo.providerUserId(), userInfo.email(), userInfo.name(), userInfo.profileImageUrl());
+            return existingUser;
+        }
+
+        @Override
+        public Optional<AppUser> findById(Long userId) {
+            return Optional.ofNullable(existingUser).filter(user -> user.id().equals(userId));
+        }
+
+        @Override
+        public AppUser updateUsername(Long userId, String username) {
+            existingUser = new AppUser(userId, OAuthProvider.GOOGLE, "google-123", "jjm@example.com", username, "https://image");
+            return existingUser;
         }
     }
 

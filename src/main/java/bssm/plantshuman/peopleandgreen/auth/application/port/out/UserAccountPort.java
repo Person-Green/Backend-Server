@@ -10,4 +10,6 @@ public interface UserAccountPort {
     AppUser upsertGoogleUser(GoogleUserInfo userInfo);
 
     Optional<AppUser> findById(Long userId);
+
+    AppUser updateUsername(Long userId, String username);
 }

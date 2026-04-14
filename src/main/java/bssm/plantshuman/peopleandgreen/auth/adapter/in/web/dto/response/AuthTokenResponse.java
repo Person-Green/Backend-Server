@@ -28,7 +28,7 @@ public record AuthTokenResponse(
             String name,
             String profileImageUrl
     ) {
-        static UserResponse from(AppUser user) {
+        public static UserResponse from(AppUser user) {
             return new UserResponse(user.id(), user.email(), user.name(), user.profileImageUrl());
         }
     }
