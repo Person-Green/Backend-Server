@@ -44,9 +44,7 @@ public class PlantCatalogController {
             @AuthenticationPrincipal AuthenticatedUser authenticatedUser
     ) {
         return ResponseEntity.ok(FavoritePlantsListResponse.from(
-                getFavoritePlantsUseCase.getFavoritePlants(authenticatedUser.userId()).stream()
-                        .map(FavoritePlantsResponse::from)
-                        .toList()
+                getFavoritePlantsUseCase.getFavoritePlants(authenticatedUser.userId())
         ));
     }
 
