@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -102,6 +103,7 @@ public class PlantCatalogPersistenceAdapter implements LoadPlantCatalogPagePort,
                         f.getPlant().getManageDifficulty(),
                         countByPlantId.getOrDefault(f.getPlant().getPlantId(), 0L)
                 ))
+                .sorted(Comparator.comparingLong(FavoritePlantView::favoriteCount).reversed())
                 .toList();
     }
 
