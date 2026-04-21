@@ -2,8 +2,10 @@ package bssm.plantshuman.peopleandgreen.catalog.application.service;
 
 import bssm.plantshuman.peopleandgreen.catalog.application.port.out.FavoritePlantCommandPort;
 import bssm.plantshuman.peopleandgreen.catalog.application.port.out.LoadPlantCatalogPagePort;
+import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogFilter;
 import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogCursorPage;
 import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogItem;
+import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogSortType;
 import bssm.plantshuman.peopleandgreen.domain.plant.AirPurification;
 import bssm.plantshuman.peopleandgreen.domain.plant.ManageDifficulty;
 import org.junit.jupiter.api.Test;
@@ -18,12 +20,18 @@ class PlantCatalogServiceTest {
 
     @Test
     void returnsCursorPageWithFavoriteFlags() {
+        PlantCatalogFilter filter = PlantCatalogFilter.of("스투키", Set.of(ManageDifficulty.EASY), Set.of(), Set.of(), Set.of());
         GetPlantCatalogService service = new GetPlantCatalogService(new LoadPlantCatalogPagePort() {
             @Override
-            public List<PlantCatalogItem> loadPage(String cursor, int sizePlusOne) {
+            public List<PlantCatalogItem> loadPage(
+                    String cursor,
+                    int sizePlusOne,
+                    PlantCatalogSortType sortType,
+                    PlantCatalogFilter filter
+            ) {
                 return List.of(
-                        new PlantCatalogItem("PLT-001", "스투키", "Stucky", "중형", AirPurification.HIGH, ManageDifficulty.EASY),
-                        new PlantCatalogItem("PLT-002", "고무나무", "Rubber Plant", "대형", AirPurification.HIGH, ManageDifficulty.NORMAL)
+                        new PlantCatalogItem("PLT-001", "스투키", "Stucky", "중형", AirPurification.HIGH, ManageDifficulty.EASY, 5L),
+                        new PlantCatalogItem("PLT-002", "고무나무", "Rubber Plant", "대형", AirPurification.HIGH, ManageDifficulty.NORMAL, 4L)
                 );
             }
 
@@ -33,13 +41,41 @@ class PlantCatalogServiceTest {
             }
         });
 
-        PlantCatalogCursorPage page = service.getCatalog(1L, null, 1);
+        PlantCatalogCursorPage page = service.getCatalog(1L, null, 1, PlantCatalogSortType.ID_ASC, filter);
 
         assertEquals(1, page.plants().size());
         assertEquals("PLT-001", page.plants().getFirst().plantId());
         assertEquals(false, page.plants().getFirst().isFavorite());
+        assertEquals(5L, page.plants().getFirst().favoriteCount());
         assertEquals("PLT-001", page.nextCursor());
         assertEquals(true, page.hasNext());
+    }
+
+    @Test
+    void returnsCompositeCursorForLikeSort() {
+        GetPlantCatalogService service = new GetPlantCatalogService(new LoadPlantCatalogPagePort() {
+            @Override
+            public List<PlantCatalogItem> loadPage(
+                    String cursor,
+                    int sizePlusOne,
+                    PlantCatalogSortType sortType,
+                    PlantCatalogFilter filter
+            ) {
+                return List.of(
+                        new PlantCatalogItem("PLT-001", "스투키", "Stucky", "중형", AirPurification.HIGH, ManageDifficulty.EASY, 9L),
+                        new PlantCatalogItem("PLT-002", "고무나무", "Rubber Plant", "대형", AirPurification.HIGH, ManageDifficulty.NORMAL, 7L)
+                );
+            }
+
+            @Override
+            public Set<String> loadFavoritePlantIds(Long userId, Set<String> plantIds) {
+                return Set.of();
+            }
+        });
+
+        PlantCatalogCursorPage page = service.getCatalog(1L, null, 1, PlantCatalogSortType.LIKE_DESC, PlantCatalogFilter.empty());
+
+        assertEquals("9|PLT-001", page.nextCursor());
     }
 
     @Test
@@ -61,7 +97,12 @@ class PlantCatalogServiceTest {
     void rejectsCatalogRequestSizeOutsideAllowedRange() {
         GetPlantCatalogService service = new GetPlantCatalogService(new LoadPlantCatalogPagePort() {
             @Override
-            public List<PlantCatalogItem> loadPage(String cursor, int sizePlusOne) {
+            public List<PlantCatalogItem> loadPage(
+                    String cursor,
+                    int sizePlusOne,
+                    PlantCatalogSortType sortType,
+                    PlantCatalogFilter filter
+            ) {
                 return List.of();
             }
 
@@ -71,8 +112,8 @@ class PlantCatalogServiceTest {
             }
         });
 
-        assertThrows(IllegalArgumentException.class, () -> service.getCatalog(1L, null, 0));
-        assertThrows(IllegalArgumentException.class, () -> service.getCatalog(1L, null, 51));
+        assertThrows(IllegalArgumentException.class, () -> service.getCatalog(1L, null, 0, PlantCatalogSortType.ID_ASC, PlantCatalogFilter.empty()));
+        assertThrows(IllegalArgumentException.class, () -> service.getCatalog(1L, null, 51, PlantCatalogSortType.ID_ASC, PlantCatalogFilter.empty()));
     }
     private static final class RecordingFavoritePlantCommandPort implements FavoritePlantCommandPort {
 

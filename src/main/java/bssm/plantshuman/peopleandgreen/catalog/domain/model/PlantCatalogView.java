@@ -10,6 +10,7 @@ public record PlantCatalogView(
         String size,
         AirPurification airPurification,
         ManageDifficulty manageDifficulty,
-        boolean isFavorite
+        boolean isFavorite,
+        long favoriteCount
 ) {
 }
