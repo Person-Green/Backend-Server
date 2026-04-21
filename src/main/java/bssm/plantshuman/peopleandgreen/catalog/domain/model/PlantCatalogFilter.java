@@ -3,7 +3,9 @@ package bssm.plantshuman.peopleandgreen.catalog.domain.model;
 import bssm.plantshuman.peopleandgreen.domain.plant.AirPurification;
 import bssm.plantshuman.peopleandgreen.domain.plant.ManageDifficulty;
 
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public record PlantCatalogFilter(
         String keyword,
@@ -17,8 +19,8 @@ public record PlantCatalogFilter(
         keyword = normalizeKeyword(keyword);
         manageDifficulties = manageDifficulties == null ? Set.of() : Set.copyOf(manageDifficulties);
         airPurifications = airPurifications == null ? Set.of() : Set.copyOf(airPurifications);
-        sizes = sizes == null ? Set.of() : Set.copyOf(sizes);
-        environmentTypeIds = environmentTypeIds == null ? Set.of() : Set.copyOf(environmentTypeIds);
+        sizes = normalizeStringSet(sizes);
+        environmentTypeIds = normalizeStringSet(environmentTypeIds);
     }
 
     public static PlantCatalogFilter of(
@@ -41,5 +43,16 @@ public record PlantCatalogFilter(
         }
         String trimmed = keyword.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private static Set<String> normalizeStringSet(Set<String> values) {
+        if (values == null || values.isEmpty()) {
+            return Set.of();
+        }
+        return values.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(value -> !value.isEmpty())
+                .collect(Collectors.toUnmodifiableSet());
     }
 }

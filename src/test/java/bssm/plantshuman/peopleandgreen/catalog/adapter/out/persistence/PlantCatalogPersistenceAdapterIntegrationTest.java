@@ -55,7 +55,8 @@ class PlantCatalogPersistenceAdapterIntegrationTest {
                 VALUES
                     ('PLT-T1', '스투키', 'Stucky', 'ENV-01', 'EASY', '주 1회', '18-25도', '40-60%', '간접광', '중형', '거실', 'HIGH', '안전', '설명1'),
                     ('PLT-T2', '고무나무', 'Rubber Plant', 'ENV-01', 'NORMAL', '주 1회', '18-25도', '40-60%', '직사광', '대형', '거실', 'HIGH', '안전', '설명2'),
-                    ('PLT-T3', '몬스테라', 'Monstera', 'ENV-02', 'EASY', '주 1회', '18-25도', '50-70%', '간접광', '대형', '거실', 'NORMAL', '안전', '설명3')
+                    ('PLT-T3', '몬스테라', 'Monstera', 'ENV-02', 'EASY', '주 1회', '18-25도', '50-70%', '간접광', '대형', '거실', 'NORMAL', '안전', '설명3'),
+                    ('PLT-T4', '아레카야자', 'Areca Palm', 'ENV-02', 'NORMAL', '주 1회', '18-25도', '50-70%', '간접광', '대형', '거실', 'HIGH', '안전', '설명4')
                 """);
 
         jdbcTemplate.execute("""
@@ -70,8 +71,8 @@ class PlantCatalogPersistenceAdapterIntegrationTest {
                 INSERT INTO favorite_plant (user_id, plant_id, created_at)
                 SELECT u.id, p.plant_id, NOW()
                 FROM app_user u, plant p
-                WHERE (u.email = 'user1@test.com' AND p.plant_id IN ('PLT-T1', 'PLT-T2', 'PLT-T3'))
-                   OR (u.email = 'user2@test.com' AND p.plant_id IN ('PLT-T1', 'PLT-T2'))
+                WHERE (u.email = 'user1@test.com' AND p.plant_id IN ('PLT-T1', 'PLT-T2', 'PLT-T3', 'PLT-T4'))
+                   OR (u.email = 'user2@test.com' AND p.plant_id IN ('PLT-T1', 'PLT-T2', 'PLT-T4'))
                    OR (u.email = 'user3@test.com' AND p.plant_id = 'PLT-T1')
                 """);
     }
@@ -85,13 +86,15 @@ class PlantCatalogPersistenceAdapterIntegrationTest {
                 PlantCatalogFilter.empty()
         );
 
-        assertEquals(3, items.size());
+        assertEquals(4, items.size());
         assertEquals("PLT-T1", items.get(0).plantId());
         assertEquals(3L, items.get(0).favoriteCount());
         assertEquals("PLT-T2", items.get(1).plantId());
         assertEquals(2L, items.get(1).favoriteCount());
-        assertEquals("PLT-T3", items.get(2).plantId());
-        assertEquals(1L, items.get(2).favoriteCount());
+        assertEquals("PLT-T4", items.get(2).plantId());
+        assertEquals(2L, items.get(2).favoriteCount());
+        assertEquals("PLT-T3", items.get(3).plantId());
+        assertEquals(1L, items.get(3).favoriteCount());
     }
 
     @Test
@@ -103,8 +106,11 @@ class PlantCatalogPersistenceAdapterIntegrationTest {
                 PlantCatalogFilter.empty()
         );
 
-        assertEquals(1, items.size());
-        assertEquals("PLT-T3", items.getFirst().plantId());
+        assertEquals(2, items.size());
+        assertEquals("PLT-T4", items.get(0).plantId());
+        assertEquals(2L, items.get(0).favoriteCount());
+        assertEquals("PLT-T3", items.get(1).plantId());
+        assertEquals(1L, items.get(1).favoriteCount());
     }
 
     @Test

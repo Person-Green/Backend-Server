@@ -54,10 +54,39 @@ class PlantCatalogControllerTest {
         assertEquals(7L, response.getBody().plants().getFirst().favoriteCount());
         assertEquals("7|PLT-001", response.getBody().nextCursor());
         assertEquals(PlantCatalogSortType.LIKE_DESC, getPlantCatalogUseCase.sortType);
+        assertEquals("스투키", getPlantCatalogUseCase.filter.keyword());
         assertEquals(Set.of(ManageDifficulty.EASY), getPlantCatalogUseCase.filter.manageDifficulties());
         assertEquals(Set.of(AirPurification.HIGH), getPlantCatalogUseCase.filter.airPurifications());
         assertEquals(Set.of("중형"), getPlantCatalogUseCase.filter.sizes());
         assertEquals(Set.of("ENV-01"), getPlantCatalogUseCase.filter.environmentTypeIds());
+    }
+
+    @Test
+    void ignoresBlankStringFilters() {
+        RecordingGetPlantCatalogUseCase getPlantCatalogUseCase = new RecordingGetPlantCatalogUseCase(
+                new PlantCatalogCursorPage(List.of(), null, false)
+        );
+        PlantCatalogController controller = new PlantCatalogController(
+                getPlantCatalogUseCase,
+                userId -> List.of(),
+                new RecordingFavoriteUseCase()
+        );
+
+        ResponseEntity<PlantCatalogPageResponse> response = controller.getPlants(
+                new AuthenticatedUser(1L),
+                null,
+                20,
+                PlantCatalogSortType.ID_ASC,
+                null,
+                null,
+                null,
+                List.of(""),
+                List.of("  ")
+        );
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(Set.of(), getPlantCatalogUseCase.filter.sizes());
+        assertEquals(Set.of(), getPlantCatalogUseCase.filter.environmentTypeIds());
     }
 
     @Test
