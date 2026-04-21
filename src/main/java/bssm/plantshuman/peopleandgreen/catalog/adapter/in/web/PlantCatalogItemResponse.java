@@ -9,7 +9,8 @@ public record PlantCatalogItemResponse(
         String size,
         String airPurification,
         String manageDifficulty,
-        boolean isFavorite
+        boolean isFavorite,
+        long favoriteCount
 ) {
     public static PlantCatalogItemResponse from(PlantCatalogView view) {
         return new PlantCatalogItemResponse(
@@ -19,7 +20,8 @@ public record PlantCatalogItemResponse(
                 view.size(),
                 view.airPurification().name(),
                 view.manageDifficulty().name(),
-                view.isFavorite()
+                view.isFavorite(),
+                view.favoriteCount()
         );
     }
 }
