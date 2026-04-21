@@ -14,6 +14,9 @@ fi
 cd ~/app
 export IMAGE
 
+echo ">>> 이미지 pull: $IMAGE"
+docker pull "$IMAGE"
+
 # 초기 배포 (아무 컨테이너도 없을 때)
 if ! docker ps --format '{{.Names}}' | grep -q 'app-'; then
   echo ">>> 초기 배포: blue (포트 $BLUE_PORT)"
