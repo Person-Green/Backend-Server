@@ -21,17 +21,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private static final String[] PUBLIC_PATHS = {
-            "/auth/google/authorize",
-            "/auth/google/login",
-            "/auth/token/refresh",
-            "/auth/logout",
-            "/actuator/health",
-            "/swagger-ui.html",
-            "/swagger-ui/**",
-            "/v3/api-docs/**"
-    };
-
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final SecurityProperties securityProperties;
 
@@ -70,7 +59,7 @@ public class SecurityConfiguration {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(PUBLIC_PATHS).permitAll()
+                        .requestMatchers(SecurityPublicPaths.ALL).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

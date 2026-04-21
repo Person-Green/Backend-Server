@@ -28,6 +28,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = extractApplicationPath(request);
+        for (String publicPath : SecurityPublicPaths.ALL) {
+            if (matches(path, publicPath)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -65,5 +76,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().write("{\"message\":\"" + message + "\"}");
+    }
+
+    private boolean matches(String requestPath, String pattern) {
+        if (pattern.endsWith("/**")) {
+            String prefix = pattern.substring(0, pattern.length() - 3);
+            return requestPath.startsWith(prefix);
+        }
+        return requestPath.equals(pattern);
+    }
+
+    private String extractApplicationPath(HttpServletRequest request) {
+        String requestUri = request.getRequestURI();
+        String contextPath = request.getContextPath();
+        if (contextPath != null && !contextPath.isEmpty() && requestUri.startsWith(contextPath)) {
+            String path = requestUri.substring(contextPath.length());
+            return path.isEmpty() ? "/" : path;
+        }
+        return requestUri;
     }
 }
