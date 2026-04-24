@@ -4,6 +4,7 @@ import bssm.plantshuman.peopleandgreen.auth.adapter.out.security.AuthenticatedUs
 import bssm.plantshuman.peopleandgreen.catalog.application.port.in.FavoritePlantUseCase;
 import bssm.plantshuman.peopleandgreen.catalog.application.port.in.GetFavoritePlantsUseCase;
 import bssm.plantshuman.peopleandgreen.catalog.application.port.in.GetPlantCatalogUseCase;
+import bssm.plantshuman.peopleandgreen.catalog.application.port.in.GetPlantDetailUseCase;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PlantCatalogController {
 
     private final GetPlantCatalogUseCase getPlantCatalogUseCase;
+    private final GetPlantDetailUseCase getPlantDetailUseCase;
     private final GetFavoritePlantsUseCase getFavoritePlantsUseCase;
     private final FavoritePlantUseCase favoritePlantUseCase;
 
@@ -36,6 +38,16 @@ public class PlantCatalogController {
     ) {
         return ResponseEntity.ok(PlantCatalogPageResponse.from(
                 getPlantCatalogUseCase.getCatalog(authenticatedUser.userId(), cursor, size)
+        ));
+    }
+
+    @GetMapping("/{plantId}")
+    public ResponseEntity<PlantDetailResponse> getPlant(
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
+            @PathVariable String plantId
+    ) {
+        return ResponseEntity.ok(PlantDetailResponse.from(
+                getPlantDetailUseCase.getDetail(authenticatedUser.userId(), plantId)
         ));
     }
 

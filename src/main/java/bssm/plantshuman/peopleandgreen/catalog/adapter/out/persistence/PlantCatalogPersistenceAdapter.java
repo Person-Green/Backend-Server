@@ -6,6 +6,7 @@ import bssm.plantshuman.peopleandgreen.catalog.adapter.out.persistence.repositor
 import bssm.plantshuman.peopleandgreen.catalog.application.port.out.FavoritePlantCommandPort;
 import bssm.plantshuman.peopleandgreen.catalog.application.port.out.LoadFavoritePlantsPort;
 import bssm.plantshuman.peopleandgreen.catalog.application.port.out.LoadPlantCatalogPagePort;
+import bssm.plantshuman.peopleandgreen.catalog.application.port.out.LoadPlantDetailPort;
 import bssm.plantshuman.peopleandgreen.catalog.domain.exception.PlantNotFoundException;
 import bssm.plantshuman.peopleandgreen.catalog.domain.model.FavoritePlantView;
 import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogItem;
@@ -20,11 +21,12 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
-public class PlantCatalogPersistenceAdapter implements LoadPlantCatalogPagePort, FavoritePlantCommandPort, LoadFavoritePlantsPort {
+public class PlantCatalogPersistenceAdapter implements LoadPlantCatalogPagePort, LoadPlantDetailPort, FavoritePlantCommandPort, LoadFavoritePlantsPort {
 
     private final PlantRepository plantRepository;
     private final FavoritePlantRepository favoritePlantRepository;
@@ -105,6 +107,11 @@ public class PlantCatalogPersistenceAdapter implements LoadPlantCatalogPagePort,
                 ))
                 .sorted(Comparator.comparingLong(FavoritePlantView::favoriteCount).reversed())
                 .toList();
+    }
+
+    @Override
+    public Optional<Plant> loadById(String plantId) {
+        return plantRepository.findById(plantId);
     }
 
     private PlantCatalogItem toItem(Plant plant) {
