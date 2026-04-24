@@ -117,15 +117,4 @@ public class PlantCatalogPersistenceAdapter implements LoadPlantCatalogPagePort,
     public Optional<Plant> loadById(String plantId) {
         return plantRepository.findById(plantId);
     }
-
-    private PlantCatalogItem toItem(Plant plant) {
-        return new PlantCatalogItem(
-                plant.getPlantId(),
-                plant.getPlantKoreanName(),
-                plant.getPlantEnglishName(),
-                plant.getSize(),
-                plant.getAirPurification(),
-                plant.getManageDifficulty()
-        );
-    }
 }
