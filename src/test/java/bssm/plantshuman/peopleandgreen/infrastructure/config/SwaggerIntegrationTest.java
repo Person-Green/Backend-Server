@@ -41,4 +41,21 @@ class SwaggerIntegrationTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(header().string("Location", "/swagger-ui/index.html"));
     }
+
+    @Test
+    void exposesSwaggerUiEvenWithInvalidAuthorizationHeader() throws Exception {
+        mockMvc.perform(get("/swagger-ui.html")
+                        .header("Authorization", "Bearer invalid-token"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(header().string("Location", "/swagger-ui/index.html"));
+    }
+
+    @Test
+    void exposesOpenApiDocsEvenWithInvalidAuthorizationHeader() throws Exception {
+        mockMvc.perform(get("/v3/api-docs")
+                        .header("Authorization", "Bearer invalid-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.openapi").exists())
+                .andExpect(jsonPath("$.paths").exists());
+    }
 }

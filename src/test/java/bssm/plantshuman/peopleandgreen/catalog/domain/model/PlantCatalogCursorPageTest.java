@@ -22,7 +22,8 @@ class PlantCatalogCursorPageTest {
                 "중형",
                 AirPurification.HIGH,
                 ManageDifficulty.EASY,
-                true
+                true,
+                3L
         ));
 
         PlantCatalogCursorPage page = new PlantCatalogCursorPage(plants, "PLT-001", false);
@@ -30,7 +31,7 @@ class PlantCatalogCursorPageTest {
 
         assertEquals(1, page.plants().size());
         assertThrows(UnsupportedOperationException.class, () -> page.plants().add(
-                new PlantCatalogView("PLT-002", "고무나무", "Rubber Plant", "대형", AirPurification.HIGH, ManageDifficulty.NORMAL, false)
+                new PlantCatalogView("PLT-002", "고무나무", "Rubber Plant", "대형", AirPurification.HIGH, ManageDifficulty.NORMAL, false, 1L)
         ));
     }
 }

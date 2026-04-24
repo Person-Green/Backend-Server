@@ -9,10 +9,11 @@ import bssm.plantshuman.peopleandgreen.catalog.application.port.out.LoadPlantCat
 import bssm.plantshuman.peopleandgreen.catalog.application.port.out.LoadPlantDetailPort;
 import bssm.plantshuman.peopleandgreen.catalog.domain.exception.PlantNotFoundException;
 import bssm.plantshuman.peopleandgreen.catalog.domain.model.FavoritePlantView;
+import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogFilter;
 import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogItem;
+import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogSortType;
 import bssm.plantshuman.peopleandgreen.domain.plant.Plant;
 import bssm.plantshuman.peopleandgreen.infrastructure.persistence.plant.PlantRepository;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,10 +44,13 @@ public class PlantCatalogPersistenceAdapter implements LoadPlantCatalogPagePort,
     }
 
     @Override
-    public List<PlantCatalogItem> loadPage(String cursor, int sizePlusOne) {
-        return plantRepository.findPage(cursor, PageRequest.of(0, sizePlusOne)).stream()
-                .map(this::toItem)
-                .toList();
+    public List<PlantCatalogItem> loadPage(
+            String cursor,
+            int sizePlusOne,
+            PlantCatalogSortType sortType,
+            PlantCatalogFilter filter
+    ) {
+        return plantRepository.findCatalogPage(cursor, sizePlusOne, sortType, filter);
     }
 
     @Override
@@ -108,7 +112,7 @@ public class PlantCatalogPersistenceAdapter implements LoadPlantCatalogPagePort,
                 .sorted(Comparator.comparingLong(FavoritePlantView::favoriteCount).reversed())
                 .toList();
     }
-
+  
     @Override
     public Optional<Plant> loadById(String plantId) {
         return plantRepository.findById(plantId);

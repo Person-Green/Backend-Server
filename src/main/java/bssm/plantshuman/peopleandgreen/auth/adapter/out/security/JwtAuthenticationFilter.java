@@ -11,6 +11,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -20,11 +22,23 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String BEARER_PREFIX = "Bearer ";
+    private static final PathMatcher PATH_MATCHER = new AntPathMatcher();
 
     private final IssueJwtPort issueJwtPort;
 
     public JwtAuthenticationFilter(IssueJwtPort issueJwtPort) {
         this.issueJwtPort = issueJwtPort;
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = extractApplicationPath(request);
+        for (String publicPath : SecurityPublicPaths.ALL) {
+            if (matches(path, publicPath)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -65,5 +79,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().write("{\"message\":\"" + message + "\"}");
+    }
+
+    private boolean matches(String requestPath, String pattern) {
+        return PATH_MATCHER.match(pattern, requestPath);
+    }
+
+    private String extractApplicationPath(HttpServletRequest request) {
+        String servletPath = request.getServletPath();
+        String pathInfo = request.getPathInfo();
+
+        if (servletPath != null && !servletPath.isEmpty()) {
+            return pathInfo == null ? servletPath : servletPath + pathInfo;
+        }
+        if (pathInfo != null && !pathInfo.isEmpty()) {
+            return pathInfo;
+        }
+
+        String requestUri = request.getRequestURI();
+        String contextPath = request.getContextPath();
+        if (contextPath != null && !contextPath.isEmpty() && requestUri != null && requestUri.startsWith(contextPath)) {
+            String path = requestUri.substring(contextPath.length());
+            return path.isEmpty() ? "/" : path;
+        }
+        return requestUri == null ? "/" : requestUri;
     }
 }

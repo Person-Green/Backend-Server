@@ -1,21 +1,17 @@
-package bssm.plantshuman.peopleandgreen.catalog.application.port.out;
+package bssm.plantshuman.peopleandgreen.infrastructure.persistence.plant;
 
-import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogItem;
 import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogFilter;
+import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogItem;
 import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogSortType;
 
 import java.util.List;
-import java.util.Set;
 
-public interface LoadPlantCatalogPagePort {
+public interface PlantRepositoryCustom {
 
-    List<PlantCatalogItem> loadPage(
+    List<PlantCatalogItem> findCatalogPage(
             String cursor,
             int sizePlusOne,
             PlantCatalogSortType sortType,
             PlantCatalogFilter filter
     );
-
-    Set<String> loadFavoritePlantIds(Long userId, Set<String> plantIds);
-
 }

@@ -9,6 +9,7 @@ public record PlantCatalogItem(
         String plantEnglishName,
         String size,
         AirPurification airPurification,
-        ManageDifficulty manageDifficulty
+        ManageDifficulty manageDifficulty,
+        long favoriteCount
 ) {
 }
