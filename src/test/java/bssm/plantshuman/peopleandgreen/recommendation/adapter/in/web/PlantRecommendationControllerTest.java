@@ -1,8 +1,9 @@
 package bssm.plantshuman.peopleandgreen.recommendation.adapter.in.web;
 
+import bssm.plantshuman.peopleandgreen.auth.adapter.out.security.AuthenticatedUser;
 import bssm.plantshuman.peopleandgreen.recommendation.adapter.in.web.dto.request.RecommendPlantsRequest;
 import bssm.plantshuman.peopleandgreen.recommendation.adapter.in.web.dto.response.RecommendPlantsResponse;
-import bssm.plantshuman.peopleandgreen.recommendation.application.port.in.RecommendPlantsUseCase;
+import bssm.plantshuman.peopleandgreen.recommendation.application.port.in.RecommendPlantsWithHistoryUseCase;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.AirPurificationLevel;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.CareLevel;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.DifficultyLevel;
@@ -13,6 +14,7 @@ import bssm.plantshuman.peopleandgreen.recommendation.domain.model.PetSafetyLeve
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.PlacementType;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.PlantRecommendation;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendPlantsCommand;
+import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendPlantsExecutionResult;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendPlantsResult;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.SizeCategory;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.SunlightLevel;
@@ -30,7 +32,7 @@ class PlantRecommendationControllerTest {
 
     @Test
     void mapsUseCaseResultToResponseBody() {
-        RecommendPlantsUseCase useCase = new StubRecommendPlantsUseCase();
+        RecommendPlantsWithHistoryUseCase useCase = new StubRecommendPlantsUseCase();
         PlantRecommendationController controller = new PlantRecommendationController(useCase);
 
         RecommendPlantsRequest request = new RecommendPlantsRequest(
@@ -44,9 +46,11 @@ class PlantRecommendationControllerTest {
                 PlacementType.BATHROOM
         );
 
-        ResponseEntity<RecommendPlantsResponse> response = controller.recommend(request);
+        ResponseEntity<RecommendPlantsResponse> response = controller.recommend(new AuthenticatedUser(1L), request);
 
         assertEquals(200, response.getStatusCode().value());
+        assertEquals(23L, response.getBody().historyId());
+        assertEquals(true, response.getBody().saved());
         assertEquals("ENV_07_HUMID", response.getBody().representativeEnvironment());
         assertEquals("PLT-023", response.getBody().plants().getFirst().plantId());
         assertEquals(88, response.getBody().plants().getFirst().score());
@@ -54,7 +58,7 @@ class PlantRecommendationControllerTest {
 
     @Test
     void rejectsRequestWhenRequiredFieldIsMissing() {
-        RecommendPlantsUseCase useCase = new StubRecommendPlantsUseCase();
+        RecommendPlantsWithHistoryUseCase useCase = new StubRecommendPlantsUseCase();
         PlantRecommendationController controller = new PlantRecommendationController(useCase);
 
         RecommendPlantsRequest request = new RecommendPlantsRequest(
@@ -68,12 +72,12 @@ class PlantRecommendationControllerTest {
                 PlacementType.BATHROOM
         );
 
-        assertThrows(IllegalArgumentException.class, () -> controller.recommend(request));
+        assertThrows(IllegalArgumentException.class, () -> controller.recommend(new AuthenticatedUser(1L), request));
     }
 
     @Test
     void rejectsRequestWhenHasPetIsMissing() {
-        RecommendPlantsUseCase useCase = new StubRecommendPlantsUseCase();
+        RecommendPlantsWithHistoryUseCase useCase = new StubRecommendPlantsUseCase();
         PlantRecommendationController controller = new PlantRecommendationController(useCase);
 
         RecommendPlantsRequest request = new RecommendPlantsRequest(
@@ -87,14 +91,17 @@ class PlantRecommendationControllerTest {
                 PlacementType.BATHROOM
         );
 
-        assertThrows(IllegalArgumentException.class, () -> controller.recommend(request));
+        assertThrows(IllegalArgumentException.class, () -> controller.recommend(new AuthenticatedUser(1L), request));
     }
 
-    private static final class StubRecommendPlantsUseCase implements RecommendPlantsUseCase {
+    private static final class StubRecommendPlantsUseCase implements RecommendPlantsWithHistoryUseCase {
 
         @Override
-        public RecommendPlantsResult recommend(RecommendPlantsCommand command) {
-            return new RecommendPlantsResult(
+        public RecommendPlantsExecutionResult recommend(Long userId, RecommendPlantsCommand command) {
+            return new RecommendPlantsExecutionResult(
+                    23L,
+                    true,
+                    new RecommendPlantsResult(
                     EnvironmentType.ENV_07_HUMID,
                     List.of(EnvironmentType.ENV_03_BRIGHT_INDIRECT),
                     List.of(new PlantRecommendation(
@@ -113,6 +120,7 @@ class PlantRecommendationControllerTest {
                             List.of(PlacementType.BATHROOM, PlacementType.KITCHEN),
                             "습한 공간에 잘 적응하는 식물"
                     ))
+                    )
             );
         }
     }
