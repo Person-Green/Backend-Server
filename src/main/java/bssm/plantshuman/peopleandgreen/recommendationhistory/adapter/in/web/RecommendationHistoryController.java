@@ -30,7 +30,7 @@ public class RecommendationHistoryController {
     @GetMapping
     public ResponseEntity<RecommendationHistoryPageResponse> getHistories(
             @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
-            @RequestParam(required = false) String cursor,
+            @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "20") @Min(1) @Max(50) int size
     ) {
         return ResponseEntity.ok(RecommendationHistoryPageResponse.from(

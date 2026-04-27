@@ -13,7 +13,7 @@ public class GetRecommendationHistoriesService implements GetRecommendationHisto
     private final RecommendationHistoryQueryPort recommendationHistoryQueryPort;
 
     @Override
-    public RecommendationHistoryCursorPage getHistories(Long userId, String cursor, int size) {
+    public RecommendationHistoryCursorPage getHistories(Long userId, Long cursor, int size) {
         return recommendationHistoryQueryPort.getHistories(userId, cursor, size);
     }
 }

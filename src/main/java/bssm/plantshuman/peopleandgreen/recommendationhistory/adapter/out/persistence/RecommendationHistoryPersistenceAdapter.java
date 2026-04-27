@@ -44,10 +44,10 @@ public class RecommendationHistoryPersistenceAdapter implements RecommendationHi
     }
 
     @Override
-    public RecommendationHistoryCursorPage getHistories(Long userId, String cursor, int size) {
+    public RecommendationHistoryCursorPage getHistories(Long userId, Long cursor, int size) {
         List<RecommendationHistoryEntity> entities = cursor == null
                 ? recommendationHistoryRepository.findByUserIdOrderByIdDesc(userId, PageRequest.of(0, size + 1))
-                : recommendationHistoryRepository.findByUserIdAndIdLessThanOrderByIdDesc(userId, Long.parseLong(cursor), PageRequest.of(0, size + 1));
+                : recommendationHistoryRepository.findByUserIdAndIdLessThanOrderByIdDesc(userId, cursor, PageRequest.of(0, size + 1));
 
         boolean hasNext = entities.size() > size;
         List<RecommendationHistorySummary> items = entities.stream()
@@ -59,7 +59,7 @@ public class RecommendationHistoryPersistenceAdapter implements RecommendationHi
                         entity.getCreatedAt()
                 ))
                 .toList();
-        String nextCursor = hasNext ? String.valueOf(items.getLast().historyId()) : null;
+        Long nextCursor = hasNext ? items.getLast().historyId() : null;
         return new RecommendationHistoryCursorPage(items, nextCursor, hasNext);
     }
 

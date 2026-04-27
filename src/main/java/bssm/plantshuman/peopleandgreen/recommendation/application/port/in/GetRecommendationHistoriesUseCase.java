@@ -4,5 +4,5 @@ import bssm.plantshuman.peopleandgreen.recommendation.domain.model.Recommendatio
 
 public interface GetRecommendationHistoriesUseCase {
 
-    RecommendationHistoryCursorPage getHistories(Long userId, String cursor, int size);
+    RecommendationHistoryCursorPage getHistories(Long userId, Long cursor, int size);
 }

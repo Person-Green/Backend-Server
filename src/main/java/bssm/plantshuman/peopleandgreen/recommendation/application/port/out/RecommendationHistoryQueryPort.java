@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface RecommendationHistoryQueryPort {
 
-    RecommendationHistoryCursorPage getHistories(Long userId, String cursor, int size);
+    RecommendationHistoryCursorPage getHistories(Long userId, Long cursor, int size);
 
     Optional<RecommendationHistory> getHistory(Long userId, Long historyId);
 }

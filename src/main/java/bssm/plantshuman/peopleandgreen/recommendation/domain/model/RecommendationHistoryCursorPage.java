@@ -4,7 +4,7 @@ import java.util.List;
 
 public record RecommendationHistoryCursorPage(
         List<RecommendationHistorySummary> items,
-        String nextCursor,
+        Long nextCursor,
         boolean hasNext
 ) {
 

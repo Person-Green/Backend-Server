@@ -24,7 +24,7 @@ class RecommendationHistoryControllerTest {
         RecommendationHistoryController controller = new RecommendationHistoryController(
                 (userId, cursor, size) -> new RecommendationHistoryCursorPage(
                         List.of(new RecommendationHistorySummary(10L, "햇빛이 잘드는 공간", "스투키, 몬스테라", Instant.parse("2026-04-14T10:00:00Z"))),
-                        "10",
+                        10L,
                         false
                 ),
                 (userId, historyId) -> history(historyId),
@@ -35,6 +35,7 @@ class RecommendationHistoryControllerTest {
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals(10L, response.getBody().items().getFirst().historyId());
+        assertEquals(10L, response.getBody().nextCursor());
     }
 
     @Test

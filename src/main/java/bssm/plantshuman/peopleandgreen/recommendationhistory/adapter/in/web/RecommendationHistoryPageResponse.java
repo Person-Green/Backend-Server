@@ -7,7 +7,7 @@ import java.util.List;
 
 public record RecommendationHistoryPageResponse(
         List<Item> items,
-        String nextCursor,
+        Long nextCursor,
         boolean hasNext
 ) {
 
