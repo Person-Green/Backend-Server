@@ -32,6 +32,7 @@ class PlantCatalogControllerTest {
         );
         PlantCatalogController controller = new PlantCatalogController(
                 getPlantCatalogUseCase,
+                (u, p) -> null,
                 userId -> List.of(),
                 new RecordingFavoriteUseCase()
         );
@@ -68,6 +69,7 @@ class PlantCatalogControllerTest {
         );
         PlantCatalogController controller = new PlantCatalogController(
                 getPlantCatalogUseCase,
+                (u, p) -> null,
                 userId -> List.of(),
                 new RecordingFavoriteUseCase()
         );
@@ -94,6 +96,7 @@ class PlantCatalogControllerTest {
         RecordingFavoriteUseCase addFavoriteUseCase = new RecordingFavoriteUseCase();
         PlantCatalogController controller = new PlantCatalogController(
                 (userId, cursor, size, sort, filter) -> new PlantCatalogCursorPage(List.of(), null, false),
+                (u, p) -> null,
                 userId -> List.of(),
                 addFavoriteUseCase
         );
@@ -114,6 +117,7 @@ class PlantCatalogControllerTest {
         RecordingGetFavoritePlantsUseCase getFavoritePlantsUseCase = new RecordingGetFavoritePlantsUseCase(stubFavorites);
         PlantCatalogController controller = new PlantCatalogController(
                 (userId, cursor, size, sort, filter) -> new PlantCatalogCursorPage(List.of(), null, false),
+                (u, p) -> null,
                 getFavoritePlantsUseCase,
                 new RecordingFavoriteUseCase()
         );
@@ -135,6 +139,7 @@ class PlantCatalogControllerTest {
         RecordingGetFavoritePlantsUseCase getFavoritePlantsUseCase = new RecordingGetFavoritePlantsUseCase(List.of());
         PlantCatalogController controller = new PlantCatalogController(
                 (userId, cursor, size, sort, filter) -> new PlantCatalogCursorPage(List.of(), null, false),
+                (u, p) -> null,
                 getFavoritePlantsUseCase,
                 new RecordingFavoriteUseCase()
         );

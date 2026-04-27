@@ -4,6 +4,7 @@ import bssm.plantshuman.peopleandgreen.auth.adapter.out.security.AuthenticatedUs
 import bssm.plantshuman.peopleandgreen.catalog.application.port.in.FavoritePlantUseCase;
 import bssm.plantshuman.peopleandgreen.catalog.application.port.in.GetFavoritePlantsUseCase;
 import bssm.plantshuman.peopleandgreen.catalog.application.port.in.GetPlantCatalogUseCase;
+import bssm.plantshuman.peopleandgreen.catalog.application.port.in.GetPlantDetailUseCase;
 import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogFilter;
 import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogSortType;
 import bssm.plantshuman.peopleandgreen.domain.plant.AirPurification;
@@ -34,6 +35,7 @@ import java.util.Set;
 public class PlantCatalogController {
 
     private final GetPlantCatalogUseCase getPlantCatalogUseCase;
+    private final GetPlantDetailUseCase getPlantDetailUseCase;
     private final GetFavoritePlantsUseCase getFavoritePlantsUseCase;
     private final FavoritePlantUseCase favoritePlantUseCase;
 
@@ -58,6 +60,16 @@ public class PlantCatalogController {
         );
         return ResponseEntity.ok(PlantCatalogPageResponse.from(
                 getPlantCatalogUseCase.getCatalog(authenticatedUser.userId(), cursor, size, sort, filter)
+        ));
+    }
+
+    @GetMapping("/{plantId}")
+    public ResponseEntity<PlantDetailResponse> getPlant(
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
+            @PathVariable String plantId
+    ) {
+        return ResponseEntity.ok(PlantDetailResponse.from(
+                getPlantDetailUseCase.getDetail(authenticatedUser.userId(), plantId)
         ));
     }
 
