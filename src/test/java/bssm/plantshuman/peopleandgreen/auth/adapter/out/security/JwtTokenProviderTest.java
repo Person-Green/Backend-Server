@@ -35,6 +35,14 @@ class JwtTokenProviderTest {
     }
 
     @Test
+    void issuesUniqueRefreshTokensForRepeatedRequests() {
+        String firstRefreshToken = tokenProvider.issueRefreshToken(1L);
+        String secondRefreshToken = tokenProvider.issueRefreshToken(1L);
+
+        assertFalse(firstRefreshToken.equals(secondRefreshToken));
+    }
+
+    @Test
     void validatesIssuedGoogleStateAgainstRedirectUri() {
         String state = tokenProvider.issueGoogleState("http://localhost:3000/auth/google/callback");
 

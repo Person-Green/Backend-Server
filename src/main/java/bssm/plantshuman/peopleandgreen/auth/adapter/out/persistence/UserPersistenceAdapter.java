@@ -23,20 +23,17 @@ public class UserPersistenceAdapter implements UserAccountPort {
     @Override
     @Transactional
     public AppUser upsertGoogleUser(GoogleUserInfo userInfo) {
-        AppUserEntity entity = appUserRepository.findByOauthProviderAndOauthProviderUserId(OAuthProvider.GOOGLE, userInfo.providerUserId())
-                .map(existing -> {
-                    existing.updateGoogleProfile(userInfo.email(), userInfo.profileImageUrl());
-                    return existing;
-                })
-                .orElseGet(() -> new AppUserEntity(
-                        OAuthProvider.GOOGLE,
-                        userInfo.providerUserId(),
-                        userInfo.email(),
-                        userInfo.name(),
-                        userInfo.profileImageUrl()
-                ));
+        appUserRepository.upsertOAuthUser(
+                OAuthProvider.GOOGLE.name(),
+                userInfo.providerUserId(),
+                userInfo.email(),
+                userInfo.name(),
+                userInfo.profileImageUrl()
+        );
 
-        return toDomain(appUserRepository.save(entity));
+        return appUserRepository.findByOauthProviderAndOauthProviderUserId(OAuthProvider.GOOGLE, userInfo.providerUserId())
+                .map(this::toDomain)
+                .orElseThrow(() -> new IllegalStateException("Failed to load upserted Google user"));
     }
 
     @Override
