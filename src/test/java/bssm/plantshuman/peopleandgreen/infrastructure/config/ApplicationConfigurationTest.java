@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.FileSystemResource;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -35,5 +38,14 @@ class ApplicationConfigurationTest {
 
         assertEquals("${REQUIRE_HTTPS:true}", properties.getProperty("security.require-https"));
         assertEquals("${CORS_ALLOWED_ORIGINS:http://localhost:3000}", properties.getProperty("security.cors.allowed-origins"));
+    }
+
+    @Test
+    void cdWorkflowPropagatesCorsAllowedOriginsSecretToServerEnv() throws IOException {
+        String workflow = Files.readString(Path.of(".github/workflows/cd.yml"));
+
+        assertTrue(workflow.contains("CORS_ALLOWED_ORIGINS"));
+        assertTrue(workflow.contains("CORS_ALLOWED_ORIGINS=$CORS_ALLOWED_ORIGINS"));
+        assertTrue(workflow.contains("CORS_ALLOWED_ORIGINS: ${{ secrets.CORS_ALLOWED_ORIGINS }}"));
     }
 }
