@@ -11,6 +11,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 public class JwtTokenProvider implements IssueJwtPort {
@@ -53,6 +54,7 @@ public class JwtTokenProvider implements IssueJwtPort {
     public String issueGoogleState(String redirectUri) {
         Instant now = Instant.now();
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .issuer(properties.issuer())
                 .subject("google-oauth-state")
                 .claim(TOKEN_TYPE, GOOGLE_STATE)
@@ -91,6 +93,7 @@ public class JwtTokenProvider implements IssueJwtPort {
     private String issueToken(Long userId, String tokenType, long validitySeconds) {
         Instant now = Instant.now();
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .issuer(properties.issuer())
                 .subject(String.valueOf(userId))
                 .claim(TOKEN_TYPE, tokenType)
