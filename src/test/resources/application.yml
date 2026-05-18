@@ -10,6 +10,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
+  flyway:
+    baseline-on-migrate: true
+    baseline-version: 2
 
 auth:
   jwt:
