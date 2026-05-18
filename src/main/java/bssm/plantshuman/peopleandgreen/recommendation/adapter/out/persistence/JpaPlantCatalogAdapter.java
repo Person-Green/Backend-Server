@@ -3,12 +3,18 @@ package bssm.plantshuman.peopleandgreen.recommendation.adapter.out.persistence;
 import bssm.plantshuman.peopleandgreen.recommendation.adapter.out.persistence.entity.RecommendationPlantEntity;
 import bssm.plantshuman.peopleandgreen.recommendation.adapter.out.persistence.repository.RecommendationPlantRepository;
 import bssm.plantshuman.peopleandgreen.recommendation.application.port.out.LoadPlantCatalogPort;
+import bssm.plantshuman.peopleandgreen.recommendation.domain.exception.FailedLoadDataException;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.EnvironmentFit;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.PlantCatalogItem;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.PlantCondition;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @Component
@@ -16,16 +22,37 @@ import java.util.List;
 public class JpaPlantCatalogAdapter implements LoadPlantCatalogPort {
 
     private final RecommendationPlantRepository recommendationPlantRepository;
+    private final ObjectMapper objectMapper;
+    private List<PlantCatalogItem> fallbackCatalog;
 
-    public JpaPlantCatalogAdapter(RecommendationPlantRepository recommendationPlantRepository) {
+    public JpaPlantCatalogAdapter(RecommendationPlantRepository recommendationPlantRepository, ObjectMapper objectMapper) {
         this.recommendationPlantRepository = recommendationPlantRepository;
+        this.objectMapper = objectMapper;
     }
 
     @Override
     public List<PlantCatalogItem> loadCatalog() {
-        return recommendationPlantRepository.findAll().stream()
+        List<PlantCatalogItem> databaseCatalog = recommendationPlantRepository.findAll().stream()
                 .map(this::toDomain)
                 .toList();
+        if (!databaseCatalog.isEmpty()) {
+            return databaseCatalog;
+        }
+        return loadFallbackCatalog();
+    }
+
+    private List<PlantCatalogItem> loadFallbackCatalog() {
+        if (fallbackCatalog != null) {
+            return fallbackCatalog;
+        }
+        ClassPathResource resource = new ClassPathResource("recommendation/plant-catalog.json");
+        try (InputStream inputStream = resource.getInputStream()) {
+            fallbackCatalog = List.copyOf(objectMapper.readValue(inputStream, new TypeReference<List<PlantCatalogItem>>() {
+            }));
+            return fallbackCatalog;
+        } catch (IOException exception) {
+            throw new FailedLoadDataException();
+        }
     }
 
     private PlantCatalogItem toDomain(RecommendationPlantEntity entity) {
