@@ -6,6 +6,7 @@ public record PlantRecommendation(
         String plantId,
         String plantName,
         String plantEnglishName,
+        String imageUrl,
         int score,
         List<String> reasons,
         List<String> cautions,

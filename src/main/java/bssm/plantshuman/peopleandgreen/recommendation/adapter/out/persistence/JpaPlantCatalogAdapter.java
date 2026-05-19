@@ -76,6 +76,7 @@ public class JpaPlantCatalogAdapter implements LoadPlantCatalogPort {
                 entity.getPlantId(),
                 entity.getNameKo(),
                 entity.getNameEn(),
+                entity.getImageUrl(),
                 entity.getDifficulty(),
                 entity.getPetSafety(),
                 entity.getAirPurificationLevel(),

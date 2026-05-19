@@ -70,6 +70,7 @@ class RecommendPlantsWithHistoryServiceTest {
                 plantId,
                 name,
                 name + "-EN",
+                null,
                 90,
                 List.of("이유"),
                 List.of("주의"),
