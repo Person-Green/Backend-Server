@@ -19,6 +19,7 @@ class PlantCatalogCursorPageTest {
                 "PLT-001",
                 "스투키",
                 "Stucky",
+                "https://cdn.example.com/stucky.jpg",
                 "중형",
                 AirPurification.HIGH,
                 ManageDifficulty.EASY,
@@ -31,7 +32,7 @@ class PlantCatalogCursorPageTest {
 
         assertEquals(1, page.plants().size());
         assertThrows(UnsupportedOperationException.class, () -> page.plants().add(
-                new PlantCatalogView("PLT-002", "고무나무", "Rubber Plant", "대형", AirPurification.HIGH, ManageDifficulty.NORMAL, false, 1L)
+                new PlantCatalogView("PLT-002", "고무나무", "Rubber Plant", "https://cdn.example.com/rubber-plant.jpg", "대형", AirPurification.HIGH, ManageDifficulty.NORMAL, false, 1L)
         ));
     }
 }

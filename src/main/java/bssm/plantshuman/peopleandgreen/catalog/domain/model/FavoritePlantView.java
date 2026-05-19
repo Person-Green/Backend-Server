@@ -7,6 +7,7 @@ public record FavoritePlantView(
         String plantId,
         String plantKoreanName,
         String plantEnglishName,
+        String imageUrl,
         String size,
         AirPurification airPurification,
         ManageDifficulty manageDifficulty,

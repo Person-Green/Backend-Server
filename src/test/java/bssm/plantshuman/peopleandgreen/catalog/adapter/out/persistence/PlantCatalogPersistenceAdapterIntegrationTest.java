@@ -51,12 +51,12 @@ class PlantCatalogPersistenceAdapterIntegrationTest {
         jdbcTemplate.execute("""
                 INSERT INTO plant (plant_id, plant_korean_name, plant_english_name, primary_type_id, manage_difficulty,
                     water_period, appropriate_temperature, appropriate_humidity, sunlight_requirements, size,
-                    recommended_indoor_location, air_purification, pet_safety, description)
+                    recommended_indoor_location, air_purification, pet_safety, description, image_url)
                 VALUES
-                    ('PLT-T1', '스투키', 'Stucky', 'ENV-01', 'EASY', '주 1회', '18-25도', '40-60%', '간접광', '중형', '거실', 'HIGH', '안전', '설명1'),
-                    ('PLT-T2', '고무나무', 'Rubber Plant', 'ENV-01', 'NORMAL', '주 1회', '18-25도', '40-60%', '직사광', '대형', '거실', 'HIGH', '안전', '설명2'),
-                    ('PLT-T3', '몬스테라', 'Monstera', 'ENV-02', 'EASY', '주 1회', '18-25도', '50-70%', '간접광', '대형', '거실', 'NORMAL', '안전', '설명3'),
-                    ('PLT-T4', '아레카야자', 'Areca Palm', 'ENV-02', 'NORMAL', '주 1회', '18-25도', '50-70%', '간접광', '대형', '거실', 'HIGH', '안전', '설명4')
+                    ('PLT-T1', '스투키', 'Stucky', 'ENV-01', 'EASY', '주 1회', '18-25도', '40-60%', '간접광', '중형', '거실', 'HIGH', '안전', '설명1', 'https://cdn.example.com/stucky.jpg'),
+                    ('PLT-T2', '고무나무', 'Rubber Plant', 'ENV-01', 'NORMAL', '주 1회', '18-25도', '40-60%', '직사광', '대형', '거실', 'HIGH', '안전', '설명2', 'https://cdn.example.com/rubber-plant.jpg'),
+                    ('PLT-T3', '몬스테라', 'Monstera', 'ENV-02', 'EASY', '주 1회', '18-25도', '50-70%', '간접광', '대형', '거실', 'NORMAL', '안전', '설명3', 'https://cdn.example.com/monstera.jpg'),
+                    ('PLT-T4', '아레카야자', 'Areca Palm', 'ENV-02', 'NORMAL', '주 1회', '18-25도', '50-70%', '간접광', '대형', '거실', 'HIGH', '안전', '설명4', 'https://cdn.example.com/areca-palm.jpg')
                 """);
 
         jdbcTemplate.execute("""
@@ -88,6 +88,7 @@ class PlantCatalogPersistenceAdapterIntegrationTest {
 
         assertEquals(4, items.size());
         assertEquals("PLT-T1", items.get(0).plantId());
+        assertEquals("https://cdn.example.com/stucky.jpg", items.get(0).imageUrl());
         assertEquals(3L, items.get(0).favoriteCount());
         assertEquals("PLT-T2", items.get(1).plantId());
         assertEquals(2L, items.get(1).favoriteCount());
