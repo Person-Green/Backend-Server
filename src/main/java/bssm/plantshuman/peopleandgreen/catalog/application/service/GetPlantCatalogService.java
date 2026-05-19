@@ -53,6 +53,7 @@ public class GetPlantCatalogService implements GetPlantCatalogUseCase {
                         item.plantId(),
                         item.plantKoreanName(),
                         item.plantEnglishName(),
+                        item.imageUrl(),
                         item.size(),
                         item.airPurification(),
                         item.manageDifficulty(),

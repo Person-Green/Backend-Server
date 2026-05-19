@@ -32,6 +32,7 @@ public class GetPlantDetailService implements GetPlantDetailUseCase {
                 plant.getPlantId(),
                 plant.getPlantKoreanName(),
                 plant.getPlantEnglishName(),
+                plant.getImageUrl(),
                 plant.getManageDifficulty(),
                 plant.getWaterPeriod(),
                 plant.getAppropriateTemperature(),

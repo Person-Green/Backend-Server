@@ -7,6 +7,7 @@ public record PlantDetail(
         String plantId,
         String plantKoreanName,
         String plantEnglishName,
+        String imageUrl,
         ManageDifficulty manageDifficulty,
         String waterPeriod,
         String appropriateTemperature,

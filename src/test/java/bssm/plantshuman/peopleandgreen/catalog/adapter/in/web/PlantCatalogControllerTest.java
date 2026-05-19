@@ -9,6 +9,7 @@ import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogFilter;
 import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogCursorPage;
 import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogSortType;
 import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantCatalogView;
+import bssm.plantshuman.peopleandgreen.catalog.domain.model.PlantDetail;
 import bssm.plantshuman.peopleandgreen.domain.plant.AirPurification;
 import bssm.plantshuman.peopleandgreen.domain.plant.ManageDifficulty;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ class PlantCatalogControllerTest {
     void returnsCatalogPageForAuthenticatedUser() {
         RecordingGetPlantCatalogUseCase getPlantCatalogUseCase = new RecordingGetPlantCatalogUseCase(
                 new PlantCatalogCursorPage(
-                        List.of(new PlantCatalogView("PLT-001", "스투키", "Stucky", "중형", AirPurification.HIGH, ManageDifficulty.EASY, true, 7L)),
+                        List.of(new PlantCatalogView("PLT-001", "스투키", "Stucky", "https://cdn.example.com/stucky.jpg", "중형", AirPurification.HIGH, ManageDifficulty.EASY, true, 7L)),
                         "7|PLT-001",
                         false
                 )
@@ -51,6 +52,7 @@ class PlantCatalogControllerTest {
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals("PLT-001", response.getBody().plants().getFirst().plantId());
+        assertEquals("https://cdn.example.com/stucky.jpg", response.getBody().plants().getFirst().imageUrl());
         assertEquals(true, response.getBody().plants().getFirst().isFavorite());
         assertEquals(7L, response.getBody().plants().getFirst().favoriteCount());
         assertEquals("7|PLT-001", response.getBody().nextCursor());
@@ -92,6 +94,38 @@ class PlantCatalogControllerTest {
     }
 
     @Test
+    void returnsPlantDetailWithImageUrlForAuthenticatedUser() {
+        PlantCatalogController controller = new PlantCatalogController(
+                (userId, cursor, size, sort, filter) -> new PlantCatalogCursorPage(List.of(), null, false),
+                (userId, plantId) -> new PlantDetail(
+                        "PLT-001",
+                        "스투키",
+                        "Stucky",
+                        "https://cdn.example.com/stucky.jpg",
+                        ManageDifficulty.EASY,
+                        "2~3주 1회",
+                        "18~30°C",
+                        "40~60%",
+                        "높음",
+                        "중형",
+                        "남향 창가",
+                        AirPurification.HIGH,
+                        "안전",
+                        "공기정화 효과가 뛰어납니다",
+                        true
+                ),
+                userId -> List.of(),
+                new RecordingFavoriteUseCase()
+        );
+
+        ResponseEntity<PlantDetailResponse> response = controller.getPlant(new AuthenticatedUser(1L), "PLT-001");
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals("PLT-001", response.getBody().plantId());
+        assertEquals("https://cdn.example.com/stucky.jpg", response.getBody().imageUrl());
+    }
+
+    @Test
     void addsFavoriteForAuthenticatedUser() {
         RecordingFavoriteUseCase addFavoriteUseCase = new RecordingFavoriteUseCase();
         PlantCatalogController controller = new PlantCatalogController(
@@ -111,8 +145,8 @@ class PlantCatalogControllerTest {
     @Test
     void returnsFavoritePlantsForAuthenticatedUser() {
         List<FavoritePlantView> stubFavorites = List.of(
-                new FavoritePlantView("PLT-001", "스투키", "Stucky", "중형", AirPurification.HIGH, ManageDifficulty.EASY, 5L),
-                new FavoritePlantView("PLT-002", "고무나무", "Rubber Plant", "대형", AirPurification.HIGH, ManageDifficulty.NORMAL, 12L)
+                new FavoritePlantView("PLT-001", "스투키", "Stucky", "https://cdn.example.com/stucky.jpg", "중형", AirPurification.HIGH, ManageDifficulty.EASY, 5L),
+                new FavoritePlantView("PLT-002", "고무나무", "Rubber Plant", "https://cdn.example.com/rubber-plant.jpg", "대형", AirPurification.HIGH, ManageDifficulty.NORMAL, 12L)
         );
         RecordingGetFavoritePlantsUseCase getFavoritePlantsUseCase = new RecordingGetFavoritePlantsUseCase(stubFavorites);
         PlantCatalogController controller = new PlantCatalogController(
@@ -128,6 +162,7 @@ class PlantCatalogControllerTest {
         assertEquals(200, response.getStatusCode().value());
         assertEquals(2, response.getBody().favoritePlants().size());
         assertEquals("PLT-001", response.getBody().favoritePlants().get(0).plantId());
+        assertEquals("https://cdn.example.com/stucky.jpg", response.getBody().favoritePlants().get(0).imageUrl());
         assertEquals(5L, response.getBody().favoritePlants().get(0).favoriteCount());
         assertEquals(true, response.getBody().favoritePlants().get(0).isFavorite());
         assertEquals("PLT-002", response.getBody().favoritePlants().get(1).plantId());
