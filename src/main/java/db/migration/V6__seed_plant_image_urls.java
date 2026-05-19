@@ -41,7 +41,7 @@ public class V6__seed_plant_image_urls extends BaseJavaMigration {
 
         if (tableExists(connection, "plant") && columnExists(connection, "plant", "image_url")) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "UPDATE plant SET image_url = ? WHERE plant_id = ?"
+                    "UPDATE plant SET image_url = ? WHERE plant_id = ? AND image_url IS NULL"
             )) {
                 for (Map.Entry<String, String> entry : PLANT_IMAGE_URLS.entrySet()) {
                     statement.setString(1, entry.getValue());
@@ -60,7 +60,7 @@ public class V6__seed_plant_image_urls extends BaseJavaMigration {
                 statement.execute(
                         "UPDATE recommendation_plant rp SET image_url = ("
                                 + "SELECT p.image_url FROM plant p WHERE p.plant_id = rp.plant_id"
-                                + ") WHERE EXISTS ("
+                                + ") WHERE rp.image_url IS NULL AND EXISTS ("
                                 + "SELECT 1 FROM plant p WHERE p.plant_id = rp.plant_id AND p.image_url IS NOT NULL"
                                 + ")"
                 );
