@@ -24,6 +24,9 @@ public class Plant {
     @Column(nullable = false)
     private String plantEnglishName;
 
+    @Column(length = 1000)
+    private String imageUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "primary_type_id", nullable = true)
     private PlantEnvironment primaryEnvironment;

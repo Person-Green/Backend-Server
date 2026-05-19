@@ -16,8 +16,8 @@ class GetFavoritePlantsServiceTest {
     @Test
     void returnsFavoritePlantsWithCountsForUser() {
         List<FavoritePlantView> stubbed = List.of(
-                new FavoritePlantView("PLT-001", "스투키", "Stucky", "중형", AirPurification.HIGH, ManageDifficulty.EASY, 5L),
-                new FavoritePlantView("PLT-002", "고무나무", "Rubber Plant", "대형", AirPurification.HIGH, ManageDifficulty.NORMAL, 12L)
+                new FavoritePlantView("PLT-001", "스투키", "Stucky", "https://cdn.example.com/stucky.jpg", "중형", AirPurification.HIGH, ManageDifficulty.EASY, 5L),
+                new FavoritePlantView("PLT-002", "고무나무", "Rubber Plant", "https://cdn.example.com/rubber-plant.jpg", "대형", AirPurification.HIGH, ManageDifficulty.NORMAL, 12L)
         );
         RecordingLoadFavoritePlantsPort port = new RecordingLoadFavoritePlantsPort(stubbed);
         GetFavoritePlantsService service = new GetFavoritePlantsService(port);

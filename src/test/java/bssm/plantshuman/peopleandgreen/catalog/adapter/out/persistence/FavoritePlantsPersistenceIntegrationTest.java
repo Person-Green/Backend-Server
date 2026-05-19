@@ -39,11 +39,11 @@ class FavoritePlantsPersistenceIntegrationTest {
                 INSERT INTO plant (plant_id, plant_korean_name, plant_english_name, manage_difficulty,
                     water_period, appropriate_temperature, appropriate_humidity,
                     sunlight_requirements, size, recommended_indoor_location,
-                    air_purification, pet_safety, description)
+                    air_purification, pet_safety, description, image_url)
                 VALUES
-                    ('PLT-T1', '스투키', 'Stucky', 'EASY', '주 1회', '18-25도', '40-60%', '간접광', '중형', '거실', 'HIGH', '안전', '설명1'),
-                    ('PLT-T2', '고무나무', 'Rubber Plant', 'NORMAL', '주 1회', '18-25도', '40-60%', '직사광', '대형', '거실', 'HIGH', '안전', '설명2'),
-                    ('PLT-T3', '몬스테라', 'Monstera', 'EASY', '주 1회', '18-25도', '50-70%', '간접광', '대형', '거실', 'NORMAL', '안전', '설명3')
+                    ('PLT-T1', '스투키', 'Stucky', 'EASY', '주 1회', '18-25도', '40-60%', '간접광', '중형', '거실', 'HIGH', '안전', '설명1', 'https://cdn.example.com/stucky.jpg'),
+                    ('PLT-T2', '고무나무', 'Rubber Plant', 'NORMAL', '주 1회', '18-25도', '40-60%', '직사광', '대형', '거실', 'HIGH', '안전', '설명2', 'https://cdn.example.com/rubber-plant.jpg'),
+                    ('PLT-T3', '몬스테라', 'Monstera', 'EASY', '주 1회', '18-25도', '50-70%', '간접광', '대형', '거실', 'NORMAL', '안전', '설명3', 'https://cdn.example.com/monstera.jpg')
                 """);
 
         jdbcTemplate.execute("""
@@ -76,6 +76,7 @@ class FavoritePlantsPersistenceIntegrationTest {
 
         assertEquals(3, result.size());
         assertEquals("PLT-T1", result.get(0).plantId());
+        assertEquals("https://cdn.example.com/stucky.jpg", result.get(0).imageUrl());
         assertEquals(3L, result.get(0).favoriteCount());
         assertEquals("PLT-T3", result.get(1).plantId());
         assertEquals(2L, result.get(1).favoriteCount());

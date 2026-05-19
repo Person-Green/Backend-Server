@@ -67,6 +67,7 @@ public class PlantRepositoryImpl implements PlantRepositoryCustom {
                         plant.plantId,
                         plant.plantKoreanName,
                         plant.plantEnglishName,
+                        plant.imageUrl,
                         plant.size,
                         plant.airPurification,
                         plant.manageDifficulty,
@@ -79,6 +80,7 @@ public class PlantRepositoryImpl implements PlantRepositoryCustom {
                         plant.plantId,
                         plant.plantKoreanName,
                         plant.plantEnglishName,
+                        plant.imageUrl,
                         plant.size,
                         plant.airPurification,
                         plant.manageDifficulty

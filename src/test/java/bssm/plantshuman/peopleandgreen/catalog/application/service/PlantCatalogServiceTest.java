@@ -30,8 +30,8 @@ class PlantCatalogServiceTest {
                     PlantCatalogFilter filter
             ) {
                 return List.of(
-                        new PlantCatalogItem("PLT-001", "스투키", "Stucky", "중형", AirPurification.HIGH, ManageDifficulty.EASY, 5L),
-                        new PlantCatalogItem("PLT-002", "고무나무", "Rubber Plant", "대형", AirPurification.HIGH, ManageDifficulty.NORMAL, 4L)
+                        new PlantCatalogItem("PLT-001", "스투키", "Stucky", "https://cdn.example.com/stucky.jpg", "중형", AirPurification.HIGH, ManageDifficulty.EASY, 5L),
+                        new PlantCatalogItem("PLT-002", "고무나무", "Rubber Plant", "https://cdn.example.com/rubber-plant.jpg", "대형", AirPurification.HIGH, ManageDifficulty.NORMAL, 4L)
                 );
             }
 
@@ -45,6 +45,7 @@ class PlantCatalogServiceTest {
 
         assertEquals(1, page.plants().size());
         assertEquals("PLT-001", page.plants().getFirst().plantId());
+        assertEquals("https://cdn.example.com/stucky.jpg", page.plants().getFirst().imageUrl());
         assertEquals(false, page.plants().getFirst().isFavorite());
         assertEquals(5L, page.plants().getFirst().favoriteCount());
         assertEquals("PLT-001", page.nextCursor());
@@ -62,8 +63,8 @@ class PlantCatalogServiceTest {
                     PlantCatalogFilter filter
             ) {
                 return List.of(
-                        new PlantCatalogItem("PLT-001", "스투키", "Stucky", "중형", AirPurification.HIGH, ManageDifficulty.EASY, 9L),
-                        new PlantCatalogItem("PLT-002", "고무나무", "Rubber Plant", "대형", AirPurification.HIGH, ManageDifficulty.NORMAL, 7L)
+                        new PlantCatalogItem("PLT-001", "스투키", "Stucky", "https://cdn.example.com/stucky.jpg", "중형", AirPurification.HIGH, ManageDifficulty.EASY, 9L),
+                        new PlantCatalogItem("PLT-002", "고무나무", "Rubber Plant", "https://cdn.example.com/rubber-plant.jpg", "대형", AirPurification.HIGH, ManageDifficulty.NORMAL, 7L)
                 );
             }
 
