@@ -6,6 +6,7 @@ public record PlantCatalogItem(
         String plantId,
         String nameKo,
         String nameEn,
+        String imageUrl,
         DifficultyLevel difficulty,
         PetSafetyLevel petSafety,
         AirPurificationLevel airPurificationLevel,

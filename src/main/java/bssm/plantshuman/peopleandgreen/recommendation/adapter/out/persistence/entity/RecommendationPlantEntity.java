@@ -37,6 +37,9 @@ public class RecommendationPlantEntity {
     @Column(name = "name_en", nullable = false)
     private String nameEn;
 
+    @Column(name = "image_url", length = 1000)
+    private String imageUrl;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DifficultyLevel difficulty;
@@ -81,6 +84,7 @@ public class RecommendationPlantEntity {
             String plantId,
             String nameKo,
             String nameEn,
+            String imageUrl,
             DifficultyLevel difficulty,
             PetSafetyLevel petSafety,
             AirPurificationLevel airPurificationLevel,
@@ -95,6 +99,7 @@ public class RecommendationPlantEntity {
         this.plantId = plantId;
         this.nameKo = nameKo;
         this.nameEn = nameEn;
+        this.imageUrl = imageUrl;
         this.difficulty = difficulty;
         this.petSafety = petSafety;
         this.airPurificationLevel = airPurificationLevel;
