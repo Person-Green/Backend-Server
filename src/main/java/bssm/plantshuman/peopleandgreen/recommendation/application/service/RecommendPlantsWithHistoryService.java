@@ -2,25 +2,32 @@ package bssm.plantshuman.peopleandgreen.recommendation.application.service;
 
 import bssm.plantshuman.peopleandgreen.recommendation.application.port.in.RecommendPlantsUseCase;
 import bssm.plantshuman.peopleandgreen.recommendation.application.port.in.RecommendPlantsWithHistoryUseCase;
+import bssm.plantshuman.peopleandgreen.recommendation.application.port.out.LoadRecommendationFavoriteMetadataPort;
 import bssm.plantshuman.peopleandgreen.recommendation.application.port.out.RecommendationHistoryCommandPort;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.EnvironmentType;
+import bssm.plantshuman.peopleandgreen.recommendation.domain.model.PlantRecommendation;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendPlantsCommand;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendPlantsExecutionResult;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendPlantsResult;
+import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendationFavoriteMetadata;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendationHistoryDraft;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class RecommendPlantsWithHistoryService implements RecommendPlantsWithHistoryUseCase {
 
     private final RecommendPlantsUseCase recommendPlantsUseCase;
+    private final LoadRecommendationFavoriteMetadataPort loadRecommendationFavoriteMetadataPort;
     private final RecommendationHistoryCommandPort recommendationHistoryCommandPort;
 
     @Override
     public RecommendPlantsExecutionResult recommend(Long userId, RecommendPlantsCommand command) {
-        RecommendPlantsResult result = recommendPlantsUseCase.recommend(command);
+        RecommendPlantsResult result = withFavoriteMetadata(userId, recommendPlantsUseCase.recommend(command));
         RecommendationHistoryDraft draft = new RecommendationHistoryDraft(
                 userId,
                 titleFor(result.representativeEnvironment()),
@@ -30,6 +37,24 @@ public class RecommendPlantsWithHistoryService implements RecommendPlantsWithHis
         );
         Long historyId = recommendationHistoryCommandPort.save(draft);
         return new RecommendPlantsExecutionResult(historyId, true, result);
+    }
+
+    private RecommendPlantsResult withFavoriteMetadata(Long userId, RecommendPlantsResult result) {
+        Set<String> plantIds = result.plants().stream()
+                .map(PlantRecommendation::plantId)
+                .collect(Collectors.toSet());
+        RecommendationFavoriteMetadata favoriteMetadata = loadRecommendationFavoriteMetadataPort.load(userId, plantIds);
+
+        return new RecommendPlantsResult(
+                result.representativeEnvironment(),
+                result.secondaryEnvironmentTags(),
+                result.plants().stream()
+                        .map(plant -> plant.withFavoriteMetadata(
+                                favoriteMetadata.isFavorite(plant.plantId()),
+                                favoriteMetadata.favoriteCount(plant.plantId())
+                        ))
+                        .toList()
+        );
     }
 
     private String summarizePlants(RecommendPlantsResult result) {

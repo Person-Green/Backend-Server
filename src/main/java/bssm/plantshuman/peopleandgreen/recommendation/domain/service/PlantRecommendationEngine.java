@@ -128,6 +128,8 @@ public class PlantRecommendationEngine {
                 plant.nameKo(),
                 plant.nameEn(),
                 plant.imageUrl(),
+                false,
+                0L,
                 totalScore,
                 buildReasons(plant, userProfile, representativeEnvironment, placementScore, difficultyScore),
                 buildCautions(plant, userProfile),
