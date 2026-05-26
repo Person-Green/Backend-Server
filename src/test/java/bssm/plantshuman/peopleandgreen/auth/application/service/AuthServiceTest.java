@@ -7,6 +7,7 @@ import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenHas
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenStorePort;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.UserAccountPort;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AppUser;
+import bssm.plantshuman.peopleandgreen.auth.domain.model.AppUserUpsertResult;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.GoogleUserInfo;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.OAuthProvider;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.PreparedGoogleAuthorization;
@@ -63,6 +64,7 @@ class AuthServiceTest {
         assertEquals("ACCESS_TOKEN", tokens.accessToken());
         assertEquals("REFRESH_TOKEN", tokens.refreshToken());
         assertEquals(900, tokens.expiresIn());
+        assertEquals(true, tokens.firstLogin());
         assertEquals(1L, tokens.user().id());
         assertEquals(1L, refreshTokenStorePort.savedUserId);
         assertEquals("HASHED_REFRESH_TOKEN", refreshTokenStorePort.savedTokenHash);
@@ -85,6 +87,7 @@ class AuthServiceTest {
         var tokens = service.login("AUTH_CODE", "STATE_TOKEN", "http://localhost:3000/auth/google/callback");
 
         assertEquals("chosenName", tokens.user().name());
+        assertEquals(false, tokens.firstLogin());
         assertEquals("after@example.com", tokens.user().email());
         assertEquals("https://new-image", tokens.user().profileImageUrl());
     }
@@ -255,8 +258,11 @@ class AuthServiceTest {
     private static final class StubUserAccountPort implements UserAccountPort {
 
         @Override
-        public AppUser upsertGoogleUser(GoogleUserInfo userInfo) {
-            return new AppUser(1L, OAuthProvider.GOOGLE, userInfo.providerUserId(), userInfo.email(), userInfo.name(), userInfo.profileImageUrl());
+        public AppUserUpsertResult upsertGoogleUser(GoogleUserInfo userInfo) {
+            return new AppUserUpsertResult(
+                    new AppUser(1L, OAuthProvider.GOOGLE, userInfo.providerUserId(), userInfo.email(), userInfo.name(), userInfo.profileImageUrl()),
+                    true
+            );
         }
 
         @Override
@@ -283,7 +289,7 @@ class AuthServiceTest {
         }
 
         @Override
-        public AppUser upsertGoogleUser(GoogleUserInfo userInfo) {
+        public AppUserUpsertResult upsertGoogleUser(GoogleUserInfo userInfo) {
             if (existingUser != null
                     && existingUser.oauthProvider() == OAuthProvider.GOOGLE
                     && existingUser.oauthProviderUserId().equals(userInfo.providerUserId())) {
@@ -295,11 +301,11 @@ class AuthServiceTest {
                         existingUser.name(),
                         userInfo.profileImageUrl()
                 );
-                return existingUser;
+                return new AppUserUpsertResult(existingUser, false);
             }
 
             existingUser = new AppUser(1L, OAuthProvider.GOOGLE, userInfo.providerUserId(), userInfo.email(), userInfo.name(), userInfo.profileImageUrl());
-            return existingUser;
+            return new AppUserUpsertResult(existingUser, true);
         }
 
         @Override

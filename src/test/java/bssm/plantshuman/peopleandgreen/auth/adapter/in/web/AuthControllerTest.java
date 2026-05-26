@@ -43,6 +43,7 @@ class AuthControllerTest {
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals("ACCESS_TOKEN", response.getBody().accessToken());
+        assertEquals(true, response.getBody().firstLogin());
         assertEquals(1L, response.getBody().user().id());
         String setCookie = httpResponse.getHeader("Set-Cookie");
         assertNotNull(setCookie);
@@ -113,6 +114,7 @@ class AuthControllerTest {
                 "REFRESH_TOKEN",
                 900,
                 1209600,
+                true,
                 new AppUser(1L, OAuthProvider.GOOGLE, "google-123", "jjm@example.com", "jjm", "https://image")
         );
     }
