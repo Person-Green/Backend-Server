@@ -47,6 +47,23 @@ class AppUserRepositoryIntegrationTest {
     }
 
     @Test
+    void userPersistenceAdapterReportsExistingGoogleUserEvenWhenProfileIsUnchanged() {
+        UserPersistenceAdapter adapter = new UserPersistenceAdapter(appUserRepository);
+        GoogleUserInfo userInfo = new GoogleUserInfo(
+                "unchanged-user-id",
+                "same@example.com",
+                "same",
+                "https://example.com/same.png"
+        );
+
+        AppUserUpsertResult firstLogin = adapter.upsertGoogleUser(userInfo);
+        AppUserUpsertResult nextLogin = adapter.upsertGoogleUser(userInfo);
+
+        assertEquals(true, firstLogin.created());
+        assertEquals(false, nextLogin.created());
+    }
+
+    @Test
     void upsertsExistingOAuthUserWithoutCreatingDuplicateUser() {
         appUserRepository.upsertOAuthUser(
                 OAuthProvider.GOOGLE.name(),
