@@ -2,7 +2,10 @@ package bssm.plantshuman.peopleandgreen.auth.adapter.out.persistence;
 
 import bssm.plantshuman.peopleandgreen.auth.adapter.out.persistence.entity.AppUserEntity;
 import bssm.plantshuman.peopleandgreen.auth.adapter.out.persistence.repository.AppUserRepository;
+import bssm.plantshuman.peopleandgreen.auth.domain.model.AppUserUpsertResult;
+import bssm.plantshuman.peopleandgreen.auth.domain.model.GoogleUserInfo;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.OAuthProvider;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +24,27 @@ class AppUserRepositoryIntegrationTest {
 
     @Autowired
     private AppUserRepository appUserRepository;
+
+    @BeforeEach
+    void setUp() {
+        appUserRepository.deleteAll();
+    }
+
+    @Test
+    void userPersistenceAdapterReportsWhetherGoogleUserWasCreated() {
+        UserPersistenceAdapter adapter = new UserPersistenceAdapter(appUserRepository);
+
+        AppUserUpsertResult firstLogin = adapter.upsertGoogleUser(
+                new GoogleUserInfo("adapter-user-id", "first@example.com", "first", "https://example.com/first.png")
+        );
+        AppUserUpsertResult nextLogin = adapter.upsertGoogleUser(
+                new GoogleUserInfo("adapter-user-id", "next@example.com", "next", "https://example.com/next.png")
+        );
+
+        assertEquals(true, firstLogin.created());
+        assertEquals(false, nextLogin.created());
+        assertEquals(firstLogin.user().id(), nextLogin.user().id());
+    }
 
     @Test
     void upsertsExistingOAuthUserWithoutCreatingDuplicateUser() {

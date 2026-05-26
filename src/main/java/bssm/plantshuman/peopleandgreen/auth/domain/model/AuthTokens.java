@@ -5,6 +5,7 @@ public record AuthTokens(
         String refreshToken,
         long expiresIn,
         long refreshExpiresIn,
+        boolean firstLogin,
         AppUser user
 ) {
 }

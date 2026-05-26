@@ -66,6 +66,7 @@ public class RefreshAccessTokenService implements RefreshAccessTokenUseCase {
                 newRefreshToken,
                 issueJwtPort.getAccessTokenValiditySeconds(),
                 issueJwtPort.getRefreshTokenValiditySeconds(),
+                false,
                 user
         );
     }

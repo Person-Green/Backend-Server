@@ -12,12 +12,14 @@ import bssm.plantshuman.peopleandgreen.auth.domain.model.PreparedGoogleAuthoriza
 public record AuthTokenResponse(
         String accessToken,
         long expiresIn,
+        boolean firstLogin,
         UserResponse user
 ) {
     public static AuthTokenResponse from(AuthTokens tokens) {
         return new AuthTokenResponse(
                 tokens.accessToken(),
                 tokens.expiresIn(),
+                tokens.firstLogin(),
                 tokens.user() == null ? null : UserResponse.from(tokens.user())
         );
     }

@@ -4,6 +4,7 @@ import bssm.plantshuman.peopleandgreen.auth.adapter.out.persistence.entity.AppUs
 import bssm.plantshuman.peopleandgreen.auth.adapter.out.persistence.repository.AppUserRepository;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.UserAccountPort;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AppUser;
+import bssm.plantshuman.peopleandgreen.auth.domain.model.AppUserUpsertResult;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.GoogleUserInfo;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.OAuthProvider;
 import org.springframework.stereotype.Component;
@@ -22,18 +23,20 @@ public class UserPersistenceAdapter implements UserAccountPort {
 
     @Override
     @Transactional
-    public AppUser upsertGoogleUser(GoogleUserInfo userInfo) {
-        appUserRepository.upsertOAuthUser(
+    public AppUserUpsertResult upsertGoogleUser(GoogleUserInfo userInfo) {
+        int affectedRows = appUserRepository.upsertOAuthUser(
                 OAuthProvider.GOOGLE.name(),
                 userInfo.providerUserId(),
                 userInfo.email(),
                 userInfo.name(),
                 userInfo.profileImageUrl()
         );
+        boolean created = affectedRows == 1;
 
-        return appUserRepository.findByOauthProviderAndOauthProviderUserId(OAuthProvider.GOOGLE, userInfo.providerUserId())
+        AppUser user = appUserRepository.findByOauthProviderAndOauthProviderUserId(OAuthProvider.GOOGLE, userInfo.providerUserId())
                 .map(this::toDomain)
                 .orElseThrow(() -> new IllegalStateException("Failed to load upserted Google user"));
+        return new AppUserUpsertResult(user, created);
     }
 
     @Override

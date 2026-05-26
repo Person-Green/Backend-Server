@@ -8,6 +8,7 @@ import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenHas
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.RefreshTokenStorePort;
 import bssm.plantshuman.peopleandgreen.auth.application.port.out.UserAccountPort;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AppUser;
+import bssm.plantshuman.peopleandgreen.auth.domain.model.AppUserUpsertResult;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.AuthTokens;
 import bssm.plantshuman.peopleandgreen.auth.domain.model.GoogleUserInfo;
 import lombok.RequiredArgsConstructor;
@@ -32,12 +33,12 @@ public class LoginWithGoogleService implements LoginWithGoogleUseCase {
         issueJwtPort.validateGoogleState(state, redirectUri);
 
         GoogleUserInfo googleUserInfo = exchangeGoogleAuthCodePort.exchange(authorizationCode, redirectUri);
-        AppUser user = userAccountPort.upsertGoogleUser(googleUserInfo);
+        AppUserUpsertResult upsertResult = userAccountPort.upsertGoogleUser(googleUserInfo);
 
-        return issueTokens(user);
+        return issueTokens(upsertResult.user(), upsertResult.created());
     }
 
-    AuthTokens issueTokens(AppUser user) {
+    AuthTokens issueTokens(AppUser user, boolean firstLogin) {
         String accessToken = issueJwtPort.issueAccessToken(user.id());
         String refreshToken = issueJwtPort.issueRefreshToken(user.id());
         refreshTokenStorePort.save(
@@ -45,6 +46,13 @@ public class LoginWithGoogleService implements LoginWithGoogleUseCase {
                 refreshTokenHashPort.hash(refreshToken),
                 Instant.now().plusSeconds(issueJwtPort.getRefreshTokenValiditySeconds())
         );
-        return new AuthTokens(accessToken, refreshToken, issueJwtPort.getAccessTokenValiditySeconds(), issueJwtPort.getRefreshTokenValiditySeconds(), user);
+        return new AuthTokens(
+                accessToken,
+                refreshToken,
+                issueJwtPort.getAccessTokenValiditySeconds(),
+                issueJwtPort.getRefreshTokenValiditySeconds(),
+                firstLogin,
+                user
+        );
     }
 }
