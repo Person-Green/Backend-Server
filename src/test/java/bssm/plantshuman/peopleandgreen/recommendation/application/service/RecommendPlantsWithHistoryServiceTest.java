@@ -1,6 +1,7 @@
 package bssm.plantshuman.peopleandgreen.recommendation.application.service;
 
 import bssm.plantshuman.peopleandgreen.recommendation.application.port.in.RecommendPlantsUseCase;
+import bssm.plantshuman.peopleandgreen.recommendation.application.port.out.LoadRecommendationFavoriteMetadataPort;
 import bssm.plantshuman.peopleandgreen.recommendation.application.port.out.RecommendationHistoryCommandPort;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.AirPurificationLevel;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.DifficultyLevel;
@@ -8,6 +9,7 @@ import bssm.plantshuman.peopleandgreen.recommendation.domain.model.EnvironmentTy
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.PetSafetyLevel;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.PlacementType;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.PlantRecommendation;
+import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendationFavoriteMetadata;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendPlantsCommand;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendPlantsExecutionResult;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendPlantsResult;
@@ -17,6 +19,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -27,6 +31,7 @@ class RecommendPlantsWithHistoryServiceTest {
         RecordingRecommendationHistoryCommandPort historyCommandPort = new RecordingRecommendationHistoryCommandPort();
         RecommendPlantsWithHistoryService service = new RecommendPlantsWithHistoryService(
                 command -> result(),
+                new StubLoadRecommendationFavoriteMetadataPort(),
                 historyCommandPort
         );
 
@@ -38,6 +43,10 @@ class RecommendPlantsWithHistoryServiceTest {
         assertEquals(55L, executionResult.historyId());
         assertEquals(true, executionResult.saved());
         assertEquals("스투키", executionResult.result().plants().getFirst().plantName());
+        assertEquals(true, executionResult.result().plants().getFirst().isFavorite());
+        assertEquals(7L, executionResult.result().plants().getFirst().favoriteCount());
+        assertEquals(true, historyCommandPort.savedDraft.resultSnapshot().plants().getFirst().isFavorite());
+        assertEquals(7L, historyCommandPort.savedDraft.resultSnapshot().plants().getFirst().favoriteCount());
     }
 
     private RecommendPlantsCommand command() {
@@ -71,6 +80,8 @@ class RecommendPlantsWithHistoryServiceTest {
                 name,
                 name + "-EN",
                 null,
+                false,
+                0L,
                 90,
                 List.of("이유"),
                 List.of("주의"),
@@ -83,6 +94,22 @@ class RecommendPlantsWithHistoryServiceTest {
                 List.of(PlacementType.LIVING_ROOM),
                 "설명"
         );
+    }
+
+    private static final class StubLoadRecommendationFavoriteMetadataPort implements LoadRecommendationFavoriteMetadataPort {
+
+        @Override
+        public RecommendationFavoriteMetadata load(Long userId, Set<String> plantIds) {
+            assertEquals(1L, userId);
+            assertEquals(Set.of("PLT-001", "PLT-002", "PLT-003"), plantIds);
+            return new RecommendationFavoriteMetadata(
+                    Set.of("PLT-001"),
+                    Map.of(
+                            "PLT-001", 7L,
+                            "PLT-002", 2L
+                    )
+            );
+        }
     }
 
     private static final class RecordingRecommendationHistoryCommandPort implements RecommendationHistoryCommandPort {
