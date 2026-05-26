@@ -24,14 +24,18 @@ public class UserPersistenceAdapter implements UserAccountPort {
     @Override
     @Transactional
     public AppUserUpsertResult upsertGoogleUser(GoogleUserInfo userInfo) {
-        int affectedRows = appUserRepository.upsertOAuthUser(
+        boolean created = appUserRepository.findByOauthProviderAndOauthProviderUserId(
+                OAuthProvider.GOOGLE,
+                userInfo.providerUserId()
+        ).isEmpty();
+
+        appUserRepository.upsertOAuthUser(
                 OAuthProvider.GOOGLE.name(),
                 userInfo.providerUserId(),
                 userInfo.email(),
                 userInfo.name(),
                 userInfo.profileImageUrl()
         );
-        boolean created = affectedRows == 1;
 
         AppUser user = appUserRepository.findByOauthProviderAndOauthProviderUserId(OAuthProvider.GOOGLE, userInfo.providerUserId())
                 .map(this::toDomain)

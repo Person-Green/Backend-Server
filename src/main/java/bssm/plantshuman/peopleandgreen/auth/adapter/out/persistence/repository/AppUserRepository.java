@@ -35,7 +35,7 @@ public interface AppUserRepository extends JpaRepository<AppUserEntity, Long> {
                 email = VALUES(email),
                 profile_image_url = VALUES(profile_image_url)
             """, nativeQuery = true)
-    int upsertOAuthUser(
+    void upsertOAuthUser(
             @Param("oauthProvider") String oauthProvider,
             @Param("oauthProviderUserId") String oauthProviderUserId,
             @Param("email") String email,
