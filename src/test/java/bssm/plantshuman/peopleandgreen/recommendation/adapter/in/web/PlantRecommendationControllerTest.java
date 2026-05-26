@@ -54,6 +54,8 @@ class PlantRecommendationControllerTest {
         assertEquals("ENV_07_HUMID", response.getBody().representativeEnvironment());
         assertEquals("PLT-023", response.getBody().plants().getFirst().plantId());
         assertEquals("https://example.com/PLT-023.jpg", response.getBody().plants().getFirst().imageUrl());
+        assertEquals(true, response.getBody().plants().getFirst().isFavorite());
+        assertEquals(4L, response.getBody().plants().getFirst().favoriteCount());
         assertEquals(88, response.getBody().plants().getFirst().score());
     }
 
@@ -110,6 +112,8 @@ class PlantRecommendationControllerTest {
                             "틸란드시아",
                             "Tillandsia",
                             "https://example.com/PLT-023.jpg",
+                            true,
+                            4L,
                             88,
                             List.of("현재 습도 환경에 잘 맞아요."),
                             List.of("반려동물이 잎을 씹지 않도록 주의해 주세요."),
