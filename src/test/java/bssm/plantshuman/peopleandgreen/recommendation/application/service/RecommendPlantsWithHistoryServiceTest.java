@@ -45,8 +45,8 @@ class RecommendPlantsWithHistoryServiceTest {
         assertEquals("스투키", executionResult.result().plants().getFirst().plantName());
         assertEquals(true, executionResult.result().plants().getFirst().isFavorite());
         assertEquals(7L, executionResult.result().plants().getFirst().favoriteCount());
-        assertEquals(true, historyCommandPort.savedDraft.resultSnapshot().plants().getFirst().isFavorite());
-        assertEquals(7L, historyCommandPort.savedDraft.resultSnapshot().plants().getFirst().favoriteCount());
+        assertEquals(false, historyCommandPort.savedDraft.resultSnapshot().plants().getFirst().isFavorite());
+        assertEquals(0L, historyCommandPort.savedDraft.resultSnapshot().plants().getFirst().favoriteCount());
     }
 
     private RecommendPlantsCommand command() {

@@ -5,7 +5,6 @@ import bssm.plantshuman.peopleandgreen.recommendation.application.port.in.Recomm
 import bssm.plantshuman.peopleandgreen.recommendation.application.port.out.LoadRecommendationFavoriteMetadataPort;
 import bssm.plantshuman.peopleandgreen.recommendation.application.port.out.RecommendationHistoryCommandPort;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.EnvironmentType;
-import bssm.plantshuman.peopleandgreen.recommendation.domain.model.PlantRecommendation;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendPlantsCommand;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendPlantsExecutionResult;
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendPlantsResult;
@@ -13,9 +12,6 @@ import bssm.plantshuman.peopleandgreen.recommendation.domain.model.Recommendatio
 import bssm.plantshuman.peopleandgreen.recommendation.domain.model.RecommendationHistoryDraft;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,28 +29,15 @@ public class RecommendPlantsWithHistoryService implements RecommendPlantsWithHis
                 titleFor(result.representativeEnvironment()),
                 summarizePlants(result),
                 command,
-                result
+                result.withoutFavoriteMetadata()
         );
         Long historyId = recommendationHistoryCommandPort.save(draft);
         return new RecommendPlantsExecutionResult(historyId, true, result);
     }
 
     private RecommendPlantsResult withFavoriteMetadata(Long userId, RecommendPlantsResult result) {
-        Set<String> plantIds = result.plants().stream()
-                .map(PlantRecommendation::plantId)
-                .collect(Collectors.toSet());
-        RecommendationFavoriteMetadata favoriteMetadata = loadRecommendationFavoriteMetadataPort.load(userId, plantIds);
-
-        return new RecommendPlantsResult(
-                result.representativeEnvironment(),
-                result.secondaryEnvironmentTags(),
-                result.plants().stream()
-                        .map(plant -> plant.withFavoriteMetadata(
-                                favoriteMetadata.isFavorite(plant.plantId()),
-                                favoriteMetadata.favoriteCount(plant.plantId())
-                        ))
-                        .toList()
-        );
+        RecommendationFavoriteMetadata favoriteMetadata = loadRecommendationFavoriteMetadataPort.load(userId, result.plantIds());
+        return result.withFavoriteMetadata(favoriteMetadata);
     }
 
     private String summarizePlants(RecommendPlantsResult result) {
